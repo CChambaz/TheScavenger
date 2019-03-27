@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7405ef409022244e8021eab14bc233c, type: 3}
+  m_Name: CommonTiles
+  m_EditorClassIdentifier: 
+  ground: {fileID: 11400000, guid: 02a0322568d2c6f4f8d5e4ebda7ffae8, type: 2}
+  cbBaseWallBottom: {fileID: 11400000, guid: 43198f5b7f4c38d4c8a6206fb6c3c1b8, type: 2}
+  cbBaseWallMid: {fileID: 11400000, guid: ba7beb2a095660e4da6add94a9898ad5, type: 2}
+  cbBaseWallTop: {fileID: 11400000, guid: 07f80016310a98249a3201ddae69b359, type: 2}
+  cbTopWall: {fileID: 11400000, guid: 15afe2f1ef8b413479689f08b4398cbe, type: 2}
+  cbBottomCornerLeftBottom: {fileID: 11400000, guid: 94fe9b6159905f54b90acf0f16fcf296,
+    type: 2}
+  cbBottomCornerLeftMid: {fileID: 11400000, guid: d37a12803b132f344bfa434f038f1b39,
+    type: 2}
+  cbBottomCornerLeftTop: {fileID: 11400000, guid: 5df0027f5e54c4a41b7ea12ea1d636cb,
+    type: 2}
+  cbBottomCornerRightBottom: {fileID: 11400000, guid: 23066e7b391660f40b5c629c2daf748f,
+    type: 2}
+  cbBottomCornerRightMid: {fileID: 11400000, guid: 21c593c260dbc3745bfbb7a85de41e7b,
+    type: 2}
+  cbBottomCornerRightTop: {fileID: 11400000, guid: 605e6ad7997b5a44586e82d8b3b72a6b,
+    type: 2}
+  cbTopCornerLeft: {fileID: 11400000, guid: e4f91d3d7db8d254c8a0c803a78c24e0, type: 2}
+  cbTopCornerRight: {fileID: 11400000, guid: b27a86293b0564144b400223206a4182, type: 2}
+  cbInnerRoof: {fileID: 11400000, guid: f5ad6e2ad8cfc814cbc92cc1ede2c390, type: 2}
+  cbInnerRoofLeftSide: {fileID: 11400000, guid: 7bd5152412d603244bd9b9dd21251f00,
+    type: 2}
+  cbInnerRoofRightSide: {fileID: 11400000, guid: 54bc89155d90b58448aa65b878706e4d,
+    type: 2}
+  cbInnerRoofBottom: {fileID: 11400000, guid: 6e1e7572953f96848b7bd6b4e86e09fd, type: 2}
+  cbInnerRoofBottomLeftSide: {fileID: 11400000, guid: 317a9010a658e1d498688f4289c1b280,
+    type: 2}
+  cbInnerRoofBottomRightSide: {fileID: 11400000, guid: ee20d1bc786103d4bae1411ed9b20137,
+    type: 2}
+  obWallTop: {fileID: 11400000, guid: 854f62643a187aa4e8cc875f65664a7b, type: 2}
+  obWallBottom: {fileID: 11400000, guid: 335f53fbaeae42a41a9349c1876b4a13, type: 2}
+  obWallLeft: {fileID: 11400000, guid: db45fbc9264b69d468e775232e87ca5a, type: 2}
+  obWallRight: {fileID: 11400000, guid: 9489dc61166bcf442aa7b8d698f71e42, type: 2}
+  obCornerTopLeft: {fileID: 11400000, guid: e5977b2d6f7daab46b29e74ebe5ec062, type: 2}
+  obCornerTopRight: {fileID: 11400000, guid: a1aaa888c35449e47990e86c9268bbaa, type: 2}
+  obCornerBottomLeft: {fileID: 11400000, guid: c771a209e22d96d4f90d88999ffcdda1, type: 2}
+  obCornerBottomRight: {fileID: 11400000, guid: bde4cffac45a9304ba1b7f6dd6736baf,
+    type: 2}
