@@ -68,9 +68,6 @@ public class GameManager : MonoBehaviour
     {
         if (previousGameState != gameState)
             ApplyChangeState();
-
-        if (Input.GetKeyDown(KeyCode.Escape) && gameState == GameState.INGAME)
-            gameState = GameState.PAUSE;
     }
 
     public void StartLevel()
@@ -102,8 +99,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        previousGameState = gameState;
-
         switch (gameState)
         {
             case GameState.MAINMENU:
@@ -124,6 +119,8 @@ public class GameManager : MonoBehaviour
             default:
                 break;
         }
+        
+        previousGameState = gameState;
     }
 
     public Transform GetPlayerTranform()

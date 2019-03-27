@@ -22,10 +22,10 @@ MonoBehaviour:
   cbMaxSizeX: 15
   cbMinSizeY: 6
   cbMaxSizeY: 15
-  obMinSizeX: 3
-  obMaxSizeX: 7
-  obMinSizeY: 3
-  obMaxSizeY: 7
+  obMinSizeX: 4
+  obMaxSizeX: 8
+  obMinSizeY: 4
+  obMaxSizeY: 8
   cbSpawnChance: 0.4
   obSpawnChance: 0.6
   forceOBSpawnAfter: 4

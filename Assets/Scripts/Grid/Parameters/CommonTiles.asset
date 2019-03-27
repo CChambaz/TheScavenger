@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CommonTiles
   m_EditorClassIdentifier: 
   ground: {fileID: 11400000, guid: 02a0322568d2c6f4f8d5e4ebda7ffae8, type: 2}
+  simpleWall: {fileID: 11400000, guid: 90f63a0b73eb7164d9cbe7a79278f829, type: 2}
   cbBaseWallBottom: {fileID: 11400000, guid: 43198f5b7f4c38d4c8a6206fb6c3c1b8, type: 2}
   cbBaseWallMid: {fileID: 11400000, guid: ba7beb2a095660e4da6add94a9898ad5, type: 2}
   cbBaseWallTop: {fileID: 11400000, guid: 07f80016310a98249a3201ddae69b359, type: 2}
