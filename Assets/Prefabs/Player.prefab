@@ -295,7 +295,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.0001
+  m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
@@ -317,11 +317,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 50
-  dashSpeed: 500
+  dashSpeed: 250
   dashDuration: 0.1
   dashCoolDown: 0.5
   attackRange: 2
-  attackDamage: 10
+  attackDamage: 20
   attackCoolDown: 0.2
   attackRightCollider: {fileID: 1258205763664675413}
   attackLeftCollider: {fileID: 1258205762454945285}

@@ -25,7 +25,7 @@ public class AStarPathfinding
         GridNode startingNode = grid.nodes[currentNodeID.x, currentNodeID.y];
         GridNode targetNode = grid.nodes[targetNodeID.x, targetNodeID.y];
         
-        // Checkif the target can be reached
+        // Check if the target can be reached
         if (!targetNode.walkable)
         {
             Debug.Log("Target not on walkable node");
@@ -65,7 +65,7 @@ public class AStarPathfinding
                 // Check if the node is walkable
                 if (!node.walkable || closedList.Contains(node))
                     continue;
-
+                
                 // Define the movement cost of the current neighbour
                 float newMoveCost = currentNode.movementCost + GetDistanceBetween(currentNode, node);
 

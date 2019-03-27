@@ -42,11 +42,8 @@ public class ca_FillMap
                         continue;
 
                     nodes = FillOpenBuildingAt(nodes, x, y);
-
-                    // Push to the end of the actual building
-                   // x += GetOpenBuildingSize(nodes, x, y).x;// - 1;
                     
-                    Vector2Int currentBuildingSize = GetOpenBuildingSize(nodes, x, y);// - 1;
+                    Vector2Int currentBuildingSize = GetOpenBuildingSize(nodes, x, y);
 
                     for (int i = x; i < x + currentBuildingSize.x; i++)
                     {
@@ -61,12 +58,9 @@ public class ca_FillMap
 
                 if (nodes[x, y].state == GridNode.NodeState.WALKABLE)
                 {
-                    nodes = SpawnFoesOnStreet(nodes, x, y);
-
-                    // Push to the end of the actual free area
-                    //x += GetFreeAreaSize(nodes, x, y).x - 1;
+                    nodes = SpawnFoesOnStreet(nodes, area, x, y);
                     
-                    Vector2Int currentFreeAreaSize = GetFreeAreaSize(nodes, x, y);// - 1;
+                    Vector2Int currentFreeAreaSize = GetFreeAreaSize(nodes, area, x, y);
 
                     for (int i = x; i < x + currentFreeAreaSize.x; i++)
                     {
@@ -175,14 +169,9 @@ public class ca_FillMap
         return nodes;
     }
 
-    GridNode[,] SpawnFoesOnStreet(GridNode[,] nodes, int indexX, int indexY)
+    GridNode[,] SpawnFoesOnStreet(GridNode[,] nodes, Grid.MapArea area, int indexX, int indexY)
     {
-        Vector2Int freeAreaSize = GetFreeAreaSize(nodes, indexX, indexY);
-
-        // Check if inside an open building
-        /*if (nodes[indexX + freeAreaSize.x, indexY].state == GridNode.NodeState.OPENDBUILDING ||
-            nodes[indexX + freeAreaSize.x, indexY].state == GridNode.NodeState.OPENBUILDINGGATE)
-            return nodes;*/
+        Vector2Int freeAreaSize = GetFreeAreaSize(nodes, area, indexX, indexY);
         
         int foesToSpawn = Random.Range(parameters.minStreetFoes, parameters.maxStreetFoes);
 
@@ -277,7 +266,7 @@ public class ca_FillMap
 
         return gatePosition;
     }
-    Vector2Int GetFreeAreaSize(GridNode[,] nodes, int indexX, int indexY)
+    Vector2Int GetFreeAreaSize(GridNode[,] nodes, Grid.MapArea area, int indexX, int indexY)
     {
         Vector2Int freeAreaSize = Vector2Int.zero;
 
@@ -286,8 +275,8 @@ public class ca_FillMap
         // Define the X size of the free area
         while (true)
         {
-            // Check if not on the edge of the map
-            if (indexX + iterator < parameters.mapSizeX)
+            // Check if still in the area
+            if (indexX + iterator < area.endIndex.x)
             {
                 // Check if still in a free area
                 if (nodes[indexX + iterator, indexY].state != GridNode.NodeState.WALKABLE)
@@ -309,8 +298,8 @@ public class ca_FillMap
         // Define the Y size of the building
         while (true)
         {
-            // Check if not on the edge of the map
-            if (indexY + iterator < parameters.mapSizeY)
+            // Check if still in the area
+            if (indexY + iterator < area.endIndex.y)
             {
                 // Check if still in a free area
                 for (int x = indexX; x < indexX + freeAreaSize.x; x++)

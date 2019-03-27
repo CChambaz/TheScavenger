@@ -38,7 +38,6 @@ public class GameManager : MonoBehaviour
     public PlayerSpawn playerSpawn;
     
     public PlayerController player;
-    public Vector3 playerTranformOffset;
     
     public GameState gameState = GameState.MAINMENU;
     GameState previousGameState = GameState.NONE;
@@ -56,10 +55,6 @@ public class GameManager : MonoBehaviour
         // Instantiate base objects
         player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
         playerSpawn = Instantiate(playerSpawnPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerSpawn>();
-
-        playerTranformOffset = player.GetComponent<SpriteRenderer>().sprite.bounds.size;
-        playerTranformOffset.x = 0;
-        playerTranformOffset.z = 0;
         
         mapDrawer.playerSpawnTransform = playerSpawn.transform;
         
@@ -131,24 +126,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /*public void GenerateGrid(float cellSizeX, float cellSizeY, int sizeX, int sizeY)
-    {
-        /*if(grid.nodes != null)
-            grid.UpdateGrid(cells);
-        else*/
-            //grid.CreateGrid(cells, cellSizeX, cellSizeY, sizeX, sizeY);
-            //grid.CreateGrid(cellSizeX, cellSizeY, sizeX, sizeY);
-      //      grid.CreateGrid();
-    //}
-
     public Transform GetPlayerTranform()
     {
         return player.GetComponent<Transform>();
-    }
-
-    public Vector3 GetPlayerTransformOffset()
-    {
-        return playerTranformOffset;
     }
     
     public List<Vector3> GetPathTo(Vector2 startPosition, Vector2 targetPosition)
