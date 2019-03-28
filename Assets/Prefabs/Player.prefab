@@ -168,7 +168,7 @@ GameObject:
   - component: {fileID: 899247882924727524}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: PlayerFeet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -318,7 +318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 50
   dashSpeed: 250
-  dashDuration: 0.1
+  dashDuration: 0.2
   dashCoolDown: 0.5
   attackRange: 2
   attackDamage: 20
@@ -327,9 +327,7 @@ MonoBehaviour:
   attackLeftCollider: {fileID: 1258205762454945285}
   attackUpCollider: {fileID: 1258205763955283729}
   attackDownCollider: {fileID: 1258205762772652014}
-  isDashing: 0
-  isAttacking: 0
-  isMoving: 0
+  invicibilityTimeAfterHit: 5
 --- !u!114 &1258205763557482110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,9 +340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42ce2cf3767639844aa5a1eb4f64000e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseLife: 10
-  baseArmor: 5
-  maxTotalArmor: 25
+  baseLife: 100
+  baseArmor: 50
 --- !u!114 &1258205763557482104
 MonoBehaviour:
   m_ObjectHideFlags: 0

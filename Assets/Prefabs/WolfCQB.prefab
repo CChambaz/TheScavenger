@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2853115383346417675}
   - component: {fileID: 811700038931692443}
   - component: {fileID: 3952133305739880362}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: WolfCQB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,11 +163,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxLife: 50
-  detectionRange: 15
+  detectionRange: 5
   moveSpeed: 50
   attackSpeed: 200
   attackDuration: 0.25
   attackDamage: 25
+  getPathCD: 10
+  hitBox: {fileID: 710652072813558022}
+  repulsiveRadius: 2
+  maxRepulsiveForce: 0
   state: 0
   playerTransform: {fileID: 0}
 --- !u!1 &6893994978750119949
@@ -180,7 +184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 401795971136366585}
   - component: {fileID: 710652072813558022}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: HitBox
   m_TagString: Foe
   m_Icon: {fileID: 0}

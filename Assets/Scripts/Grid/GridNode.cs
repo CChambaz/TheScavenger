@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GridNode
 {
-    public enum NodeState
+    /*public enum NodeState
     {
         WALKABLE,
         CLOSEDBUILDING,
@@ -15,7 +15,7 @@ public class GridNode
         PLAYERSPAWN
     }
     
-    public NodeState state;
+    public NodeState state;*/
     public int gridIndexX;
     public int gridIndexY;
     public float gridPositionX;
@@ -23,6 +23,7 @@ public class GridNode
     
     public float movementCost;
     public float heuristicCost;
+    public List<GridNode> neighbours;
     public GridNode parent;
 
     public GridNode(int indexX, int indexY, float positionX, float positionY)
@@ -40,6 +41,6 @@ public class GridNode
 
     public bool walkable
     {
-        get { return state == NodeState.WALKABLE || state == NodeState.OPENBUILDINGGATE || state == NodeState.PLAYERSPAWN; }
+        get { return movementCost > 0f; }
     }
 }

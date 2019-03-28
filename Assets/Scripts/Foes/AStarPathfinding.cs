@@ -13,6 +13,7 @@ public class AStarPathfinding
     
     public List<Vector3> GetPathTo(Grid grid, Vector2 startPosition, Vector2 targetPosition)
     {
+        Debug.Log("Start path calculation");
         // Check if the target is outside of the map
         if (targetPosition.x < 0 || targetPosition.x >= parameters.mapSizeX || targetPosition.y < 0 || targetPosition.y >= parameters.mapSizeY)
             return null;
@@ -20,6 +21,9 @@ public class AStarPathfinding
         // Get the node IDs of the current position and of the target
         Vector2Int currentNodeID = grid.GetNodeIDFromPosition(startPosition);
         Vector2Int targetNodeID = grid.GetNodeIDFromPosition(targetPosition);
+
+        /*if (currentNodeID == Vector2Int.zero || targetNodeID == Vector2Int.zero)
+            return null;*/
         
         // Get the node of the current position and of the target
         GridNode startingNode = grid.nodes[currentNodeID.x, currentNodeID.y];
@@ -28,7 +32,6 @@ public class AStarPathfinding
         // Check if the target can be reached
         if (!targetNode.walkable)
         {
-            Debug.Log("Target not on walkable node");
             targetNode = grid.nodes[targetNodeID.x, targetNodeID.y - 1];
         }
 
@@ -60,7 +63,7 @@ public class AStarPathfinding
             if (currentNode == targetNode)
                 break;
             
-            foreach (GridNode node in grid.GetNeighbours(currentNode))
+            foreach (GridNode node in currentNode.neighbours)
             {
                 // Check if the node is walkable
                 if (!node.walkable || closedList.Contains(node))

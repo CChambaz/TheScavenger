@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     }
 
     public MapDrawer mapDrawer;
+    public MapGenerator mapGenerator;
     public PlayerSpawn playerSpawn;
     
     public PlayerController player;
@@ -44,25 +45,37 @@ public class GameManager : MonoBehaviour
     public Grid grid;
     public AStarPathfinding pathfinder;
 
+    private void Awake()
+    {
+        player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         mapDrawer = FindObjectOfType<MapDrawer>();
         
-        grid = new Grid(parameters, mapDrawer);
+        mapGenerator = new MapGenerator(parameters, mapDrawer);
+        grid = new Grid(parameters, mapGenerator);
         pathfinder = new AStarPathfinding(parameters);
         
         // Instantiate base objects
-        player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
         playerSpawn = Instantiate(playerSpawnPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerSpawn>();
         
         mapDrawer.playerSpawnTransform = playerSpawn.transform;
         
         mapDrawer.DrawMapBorder();
         grid.CreateGrid();
-        grid.CreateMap();
+        
+        GenerateMap();
     }
 
+    private void GenerateMap()
+    {
+        mapGenerator.CreateMap();
+        grid.UpdateGridState();
+    }
+    
     // Update is called once per frame
     void Update()
     {
@@ -111,7 +124,6 @@ public class GameManager : MonoBehaviour
             case GameState.INTERLEVEL:
                 StartCoroutine(Fade(interCanvas, 1));
                 //StartCoroutine(mapGenerator.GenerateMap());
-                grid.CreateMap();
                 break;
             case GameState.DEATH:
                 StartCoroutine(Fade(mainMenuCanvas, 1));
@@ -156,6 +168,40 @@ public class GameManager : MonoBehaviour
         {
             canvasGroup.interactable = true;
             Time.timeScale = 0;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (true)
+        {
+            
+            foreach (var node in grid.nodes)
+            {
+                if (node.walkable)
+                {
+                    Gizmos.color = Color.green;
+                }
+                else
+                {
+                    Gizmos.color = Color.red;
+                }
+                
+                Gizmos.DrawCube(new Vector3(node.gridPositionX, node.gridPositionY), new Vector3(0.1f, 0.1f));
+                
+                Gizmos.color = Color.white;
+                
+                foreach (var neighbours in node.neighbours)
+                {
+                    Gizmos.DrawLine(new Vector3(node.gridPositionX, node.gridPositionY), new Vector3(neighbours.gridPositionX, neighbours.gridPositionY));
+                }
+            }
+            
+            /*Gizmos.color = Color.green;
+            foreach (var cell in mapGenerator.cells)
+            {
+                Gizmos.DrawCube(new Vector3(cell.positionX, cell.positionY), new Vector3(0.1f, 0.1f));
+            }*/
         }
     }
 }

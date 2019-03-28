@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,7 +13,11 @@ public class FoeController : MonoBehaviour
     [SerializeField] private float attackSpeed;
     
     [SerializeField] private float attackDuration;
-    [SerializeField] private int attackDamage;
+    [SerializeField] public int attackDamage;
+    
+    [SerializeField] public float getPathCD;
+    
+    [SerializeField] private CircleCollider2D hitBox;
     
     private enum Type
     {
@@ -44,7 +49,8 @@ public class FoeController : MonoBehaviour
     private Coroutine attackCoroutine = null;
     
     private float attackStartAt;
-
+    private float lastPathGetAt = 0;
+    
     private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -122,23 +128,36 @@ public class FoeController : MonoBehaviour
 
     private void GoAtRange()
     {
-        // Check if at range
+        // Check if the player is at range
         if ((playerTransform.position - transform.position).magnitude <= attackRange)
         {
-            state = State.ATTACK;
-            rigid.velocity = Vector2.zero;
-            animator.SetBool("isMoving", false);
-            animator.SetBool("isPreparingAttack", true);
-            return;
+            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
+            
+            // Check if the foe has a direct line of view to the player
+            if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
+            {
+                // Launch the attack
+                state = State.ATTACK;
+                rigid.velocity = Vector2.zero;
+                animator.SetBool("isMoving", false);
+                animator.SetBool("isPreparingAttack", true);
+                path = null;
+                return;
+            }
         }
         
         // Get path to the player
         path = gameManager.GetPathTo(transform.position, playerTransform.position);
-        
-        // Follow the path
-        moveFollowingPath();
-        
-        animator.SetBool("isMoving", true);
+
+        if (path != null)
+        {
+            Debug.Log("Following path");
+            
+            // Follow the path
+            moveFollowingPath();
+
+            animator.SetBool("isMoving", true);
+        }
     }
 
     private void LaunchAttack()
@@ -154,6 +173,8 @@ public class FoeController : MonoBehaviour
         Vector3 attackVector = playerTransform.position - transform.position;
 
         renderer.flipX = attackVector.x < 0;
+
+        hitBox.tag = "FoeAttack";
         
         while (Time.time < attackStartAt + attackDuration)
         {
@@ -164,6 +185,8 @@ public class FoeController : MonoBehaviour
 
         animator.SetBool("isAttacking", false);
         
+        hitBox.tag = "Foe";
+        
         attackCoroutine = null;
         
         state = State.IDLE;
@@ -172,8 +195,10 @@ public class FoeController : MonoBehaviour
     private void moveToTarget()
     {
         // Set speed to rush strait to the player
-        rigid.velocity = playerTransform.position - transform.position;
-        rigid.velocity = rigid.velocity.normalized * moveSpeed;
+        Vector3 moveVector = playerTransform.position - transform.position;
+        
+        rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
+        renderer.flipX = rigid.velocity.x < 0;
     }
 
     private void moveToNextPatrolPoint()
@@ -185,7 +210,7 @@ public class FoeController : MonoBehaviour
 
     private void moveFollowingPath()
     {
-        if (path == null)
+        if (path == null || path.Count <= 0)
             return;
         
         Vector3 moveVector = path[path.Count - 1] - transform.position;
@@ -227,19 +252,25 @@ public class FoeController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (false && path != null)
+        if (true && path != null)
         {
             // Draw the path
             for (int i = 0; i < path.Count; i++)
             {
-                if (i == path.Count - 1)
-                    break;
+                /*if (i == path.Count - 1)
+                    break;*/
                 
-                Gizmos.color = Color.red;
+                if(i == path.Count - 1)
+                    Gizmos.color = Color.cyan;
+                else
+                    Gizmos.color = Color.red;
+                
                 Gizmos.DrawCube(path[i], new Vector3(0.1f, 0.1f));
                 Gizmos.DrawLine(new Vector3(path[i].x, path[i].y), new Vector3(path[i + 1].x, path[i + 1].y));
             }
             
+            /*Gizmos.color = Color.blue;
+            Gizmos.DrawLine(transform.position, transform.position + new Vector3(rigid.velocity.x, rigid.velocity.y));
             // Draw the movement vector
             /*Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, transform.position + new Vector3(rigid.velocity.x, rigid.velocity.y));*/

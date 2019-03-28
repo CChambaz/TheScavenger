@@ -9,16 +9,20 @@ public class PlayerLife : MonoBehaviour
     [Header("Attribut")]
     [SerializeField] int baseLife;
     [SerializeField] int baseArmor;
-    [SerializeField] public int maxTotalArmor;
 
     [NonSerialized] public int maxLife;
     [NonSerialized] public int activeLife;
 
     [NonSerialized] public int maxArmor;
     [NonSerialized] public int activeArmor;
-
+    
     // Start is called before the first frame update
     void Start()
+    {
+        Reset();
+    }
+
+    public void Reset()
     {
         maxLife = baseLife;
         activeLife = maxLife;
@@ -26,56 +30,57 @@ public class PlayerLife : MonoBehaviour
         maxArmor = baseArmor;
         activeArmor = maxArmor;
     }
-
+    
     public void ChangeLife(int lifeAdded)
     {
-        // Take damage
-        if (lifeAdded < 0)
-        {
-            // Damage on the armor
-            if(activeArmor > 0)
-            {
-                activeArmor--;
-                return;
-            }
-
-            // Damage on life
-            activeLife += lifeAdded;
-            return;
-        }
-
         // Increase health
         if (activeLife == maxLife)
         {
             // Increase max life
             maxLife = activeLife + lifeAdded;
             activeLife = maxLife;
+            return;
         }
+
+        if (activeLife + maxLife > maxLife)
+            activeLife = maxLife;
         else
             activeLife += lifeAdded;
-
-        if (activeLife > maxLife)
-            activeLife = maxLife;
     }
 
-    public void IncreaseArmor(int armorAdded, bool canIncreaseMaxArmor)
+    public void IncreaseArmor(int armorAdded)
     {
-        if(activeArmor >= maxArmor && maxArmor < maxTotalArmor && canIncreaseMaxArmor)
+        if(activeArmor == maxArmor)
         {
             maxArmor += armorAdded;
             activeArmor = maxArmor;
             return;
         }
 
-        if (maxArmor == maxTotalArmor && canIncreaseMaxArmor)
-            return;
-
-        if (activeArmor == maxArmor)
-            return;
-
         if (activeArmor + armorAdded > maxArmor)
             activeArmor = maxArmor;
         else
             activeArmor += armorAdded;
+    }
+
+    public bool ApplyDamage(int amount)
+    {
+        // Apply damage to the armor
+        if (activeArmor > 0)
+        {
+            activeArmor -= amount;
+
+            if (activeArmor < 0)
+                activeArmor = 0;
+
+            return false;
+        }
+
+        activeLife -= amount;
+
+        if (activeLife <= 0)
+            return true;
+        
+        return false;
     }
 }

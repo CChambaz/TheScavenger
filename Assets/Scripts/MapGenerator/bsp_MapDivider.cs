@@ -10,9 +10,9 @@ public class bsp_MapDivider
         this.parameters = parameters;
     }
     
-    public List<Grid.MapArea> DividMap()
+    public List<MapGenerator.MapArea> DividMap()
     {
-        List<Grid.MapArea> mapAreaList = new List<Grid.MapArea>();
+        List<MapGenerator.MapArea> mapAreaList = new List<MapGenerator.MapArea>();
 
         for (int y = 0; y < parameters.mapSizeY; y++)
         {
@@ -34,7 +34,7 @@ public class bsp_MapDivider
 
                 // Create the current area
                 //MapGenerator.MapArea currentArea;
-                Grid.MapArea currentArea;
+                MapGenerator.MapArea currentArea;
 
                 // Set the values to zero
                 currentArea.startIndex = Vector2Int.zero;

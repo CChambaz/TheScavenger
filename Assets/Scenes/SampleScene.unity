@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 36970901}
   - component: {fileID: 36970900}
   - component: {fileID: 36970899}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: ResumeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -367,7 +367,7 @@ GameObject:
   - component: {fileID: 342741394}
   - component: {fileID: 342741393}
   - component: {fileID: 342741395}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: InterLevelCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -457,7 +457,7 @@ GameObject:
   - component: {fileID: 367823217}
   - component: {fileID: 367823216}
   - component: {fileID: 367823218}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: MainMenuCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -548,7 +548,7 @@ GameObject:
   - component: {fileID: 421926101}
   - component: {fileID: 421926100}
   - component: {fileID: 421926104}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: InterLevelMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -653,10 +653,10 @@ MonoBehaviour:
   textLife: {fileID: 1580411660}
   textArmor: {fileID: 1409509484}
   textNextLevel: {fileID: 1728462875}
-  addArmorCost: 10
-  addLifeCost: 5
-  addArmorAmount: 0
-  addLifeAmount: 0
+  addArmorCost: 1
+  addLifeCost: 1
+  addArmorAmount: 20
+  addLifeAmount: 20
 --- !u!1 &493265449
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,7 +669,7 @@ GameObject:
   - component: {fileID: 493265453}
   - component: {fileID: 493265452}
   - component: {fileID: 493265451}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: IncreaseLifeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -894,7 +894,7 @@ GameObject:
   - component: {fileID: 592739075}
   - component: {fileID: 592739077}
   - component: {fileID: 592739076}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -974,7 +974,7 @@ GameObject:
   - component: {fileID: 739924847}
   - component: {fileID: 739924846}
   - component: {fileID: 739924845}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: IncreaseArmorButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1291,7 +1291,7 @@ GameObject:
   - component: {fileID: 784882634}
   - component: {fileID: 784882633}
   - component: {fileID: 784882637}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1401,7 +1401,7 @@ GameObject:
   - component: {fileID: 828708538}
   - component: {fileID: 828708540}
   - component: {fileID: 828708539}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: DeathText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1561,7 +1561,7 @@ GameObject:
   - component: {fileID: 1052076934}
   - component: {fileID: 1052076936}
   - component: {fileID: 1052076935}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1641,7 +1641,7 @@ GameObject:
   - component: {fileID: 1068051269}
   - component: {fileID: 1068051268}
   - component: {fileID: 1068051267}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: StartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1771,7 +1771,7 @@ GameObject:
   - component: {fileID: 1110441827}
   - component: {fileID: 1110441826}
   - component: {fileID: 1110441830}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: MainMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1885,7 +1885,7 @@ GameObject:
   - component: {fileID: 1166030908}
   - component: {fileID: 1166030907}
   - component: {fileID: 1166030906}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: MainMenuButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2013,7 +2013,7 @@ GameObject:
   - component: {fileID: 1273620903}
   - component: {fileID: 1273620905}
   - component: {fileID: 1273620904}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2092,7 +2092,7 @@ GameObject:
   - component: {fileID: 1354845886}
   - component: {fileID: 1354845888}
   - component: {fileID: 1354845887}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2276,7 +2276,7 @@ GameObject:
   - component: {fileID: 1409509483}
   - component: {fileID: 1409509485}
   - component: {fileID: 1409509484}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2355,7 +2355,7 @@ GameObject:
   - component: {fileID: 1580411659}
   - component: {fileID: 1580411661}
   - component: {fileID: 1580411660}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2435,7 +2435,7 @@ GameObject:
   - component: {fileID: 1700439664}
   - component: {fileID: 1700439663}
   - component: {fileID: 1700439665}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: PauseMenuCanvasGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2523,7 +2523,7 @@ GameObject:
   - component: {fileID: 1728462874}
   - component: {fileID: 1728462876}
   - component: {fileID: 1728462875}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2669,7 +2669,7 @@ GameObject:
   - component: {fileID: 2075632351}
   - component: {fileID: 2075632350}
   - component: {fileID: 2075632349}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: NextLevelButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2825,7 +2825,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1258205763557482105, guid: df543270d3fb6464a8446c0528cce65d,
     type: 3}
   parameters: {fileID: 11400000, guid: 6579da96c94dc2044a4684ca7c5fa6d8, type: 2}
-  mapDrawer: {fileID: 0}
+  mapDrawer: {fileID: 1378298974}
   playerSpawn: {fileID: 0}
   player: {fileID: 0}
   gameState: 0
@@ -2855,7 +2855,7 @@ GameObject:
   - component: {fileID: 2090646782}
   - component: {fileID: 2090646781}
   - component: {fileID: 2090646780}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: ExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}

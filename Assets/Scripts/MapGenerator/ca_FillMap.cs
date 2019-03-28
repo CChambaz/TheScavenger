@@ -15,72 +15,72 @@ public class ca_FillMap
         this.parameters = parameters;
     }
     
-    public GridNode[,] FillMap(GridNode[,] nodes, Grid.MapArea area)
+    public Cell[,] FillMap(Cell[,] cells, MapGenerator.MapArea area)
     {
-        List<GridNode> visitedNodesIDs = new List<GridNode>();
+        List<Cell> visitedCellsID = new List<Cell>();
         
         for (int y = area.startIndex.y; y < area.endIndex.y; y++)
         {
             for (int x = area.startIndex.x; x < area.endIndex.x; x++)
             {
                 // Check if this node has already been visited
-                if (visitedNodesIDs.Contains(nodes[x, y]))
+                if (visitedCellsID.Contains(cells[x, y]))
                     continue;
                 
-                if (nodes[x, y].state == GridNode.NodeState.OPENDBUILDING)
+                if (cells[x, y].state == Cell.CellState.OPENDBUILDING)
                 {
                     // Check if this building has already been visited
-                    if (nodes[x, y - 1].state == GridNode.NodeState.OPENDBUILDING ||
-                        nodes[x, y - 1].state == GridNode.NodeState.OPENBUILDINGGATE)
+                    if (cells[x, y - 1].state == Cell.CellState.OPENDBUILDING ||
+                        cells[x, y - 1].state == Cell.CellState.OPENBUILDINGGATE)
                     {
                         // Go to the end of the building
-                        x += GetOpenBuildingSize(nodes, x, y).x - 1;
+                        x += GetOpenBuildingSize(cells, x, y).x - 1;
                         continue;
                     }
 
-                    if (nodes[x - 1, y].state != GridNode.NodeState.WALKABLE)
+                    if (cells[x - 1, y].state != Cell.CellState.WALKABLE)
                         continue;
 
-                    nodes = FillOpenBuildingAt(nodes, x, y);
+                    cells = FillOpenBuildingAt(cells, x, y);
                     
-                    Vector2Int currentBuildingSize = GetOpenBuildingSize(nodes, x, y);
+                    Vector2Int currentBuildingSize = GetOpenBuildingSize(cells, x, y);
 
                     for (int i = x; i < x + currentBuildingSize.x; i++)
                     {
                         for (int j = y; j < y + currentBuildingSize.y; j++)
                         {
-                            visitedNodesIDs.Add(nodes[i, j]);
+                            visitedCellsID.Add(cells[i, j]);
                         }
                     }
                     
                     continue;
                 }
 
-                if (nodes[x, y].state == GridNode.NodeState.WALKABLE)
+                if (cells[x, y].state == Cell.CellState.WALKABLE)
                 {
-                    nodes = SpawnFoesOnStreet(nodes, area, x, y);
+                    cells = SpawnFoesOnStreet(cells, area, x, y);
                     
-                    Vector2Int currentFreeAreaSize = GetFreeAreaSize(nodes, area, x, y);
+                    Vector2Int currentFreeAreaSize = GetFreeAreaSize(cells, area, x, y);
 
                     for (int i = x; i < x + currentFreeAreaSize.x; i++)
                     {
                         for (int j = y; j < y + currentFreeAreaSize.y; j++)
                         {
-                            visitedNodesIDs.Add(nodes[i, j]);
+                            visitedCellsID.Add(cells[i, j]);
                         }
                     }
                 }
             }
         }
 
-        return nodes;
+        return cells;
     }
 
-    GridNode[,] FillOpenBuildingAt(GridNode[,] nodes, int indexX, int indexY)
+    Cell[,] FillOpenBuildingAt(Cell[,] cells, int indexX, int indexY)
     {
-        Vector2Int buildingSize = GetOpenBuildingSize(nodes, indexX, indexY);
+        Vector2Int buildingSize = GetOpenBuildingSize(cells, indexX, indexY);
 
-        Vector2Int buildingGatePosition = GetOpenBuildingGatePosition(nodes, indexX, indexY, indexX + buildingSize.x, indexY + buildingSize.y);
+        Vector2Int buildingGatePosition = GetOpenBuildingGatePosition(cells, indexX, indexY, indexX + buildingSize.x, indexY + buildingSize.y);
 
         int foesToSpawn = Random.Range(parameters.minOpenBuildingFoes, parameters.maxOpenBuildingFoes);
         int itemToSpawn = Random.Range(parameters.minOpenBuildingItem, parameters.maxOpenBuildingItem);
@@ -109,7 +109,7 @@ public class ca_FillMap
             {
                 if (itemSpawnedCount < itemToSpawn)
                 {
-                    nodes[i, indexY + 1].state = GridNode.NodeState.SCRAPITEM;
+                    cells[i, indexY + 1].state = Cell.CellState.SCRAPITEM;
                     itemSpawnedCount++;
                 }
             }
@@ -121,7 +121,7 @@ public class ca_FillMap
             {
                 if (itemSpawnedCount < itemToSpawn)
                 {
-                    nodes[indexX + 1, i].state = GridNode.NodeState.SCRAPITEM;
+                    cells[indexX + 1, i].state = Cell.CellState.SCRAPITEM;
                     itemSpawnedCount++;
                 }
             }
@@ -133,7 +133,7 @@ public class ca_FillMap
             {
                 if (itemSpawnedCount < itemToSpawn)
                 {
-                    nodes[indexX + buildingSize.x - 2, i].state = GridNode.NodeState.SCRAPITEM;
+                    cells[indexX + buildingSize.x - 2, i].state = Cell.CellState.SCRAPITEM;
                     itemSpawnedCount++;
                 }
             }
@@ -145,7 +145,7 @@ public class ca_FillMap
             {
                 if (itemSpawnedCount < itemToSpawn)
                 {
-                    nodes[i, indexY + buildingSize.y - 2].state = GridNode.NodeState.SCRAPITEM;
+                    cells[i, indexY + buildingSize.y - 2].state = Cell.CellState.SCRAPITEM;
                     itemSpawnedCount++;
                 }
             }
@@ -158,20 +158,20 @@ public class ca_FillMap
                 if (foesToSpawn <= 0)
                     break;
                 
-                if (nodes[x, y].walkable)
+                if (cells[x, y].state == Cell.CellState.WALKABLE)
                 {
-                    nodes[x, y].state = GridNode.NodeState.FOESPAWN;
+                    cells[x, y].state = Cell.CellState.FOESPAWN;
                     foesToSpawn--;
                 }
             }
         }
 
-        return nodes;
+        return cells;
     }
 
-    GridNode[,] SpawnFoesOnStreet(GridNode[,] nodes, Grid.MapArea area, int indexX, int indexY)
+    Cell[,] SpawnFoesOnStreet(Cell[,] cells, MapGenerator.MapArea area, int indexX, int indexY)
     {
-        Vector2Int freeAreaSize = GetFreeAreaSize(nodes, area, indexX, indexY);
+        Vector2Int freeAreaSize = GetFreeAreaSize(cells, area, indexX, indexY);
         
         int foesToSpawn = Random.Range(parameters.minStreetFoes, parameters.maxStreetFoes);
 
@@ -187,18 +187,18 @@ public class ca_FillMap
                 if (foesToSpawn <= 0)
                     break;
                 
-                if (nodes[x, y].walkable)
+                if (cells[x, y].state == Cell.CellState.WALKABLE)
                 {
-                    nodes[x, y].state = GridNode.NodeState.FOESPAWN;
+                    cells[x, y].state = Cell.CellState.FOESPAWN;
                     foesToSpawn--;
                 }
             }
         }
 
-        return nodes;
+        return cells;
     }
 
-    Vector2Int GetOpenBuildingSize(GridNode[,] nodes, int indexX, int indexY)
+    Vector2Int GetOpenBuildingSize(Cell[,] cells, int indexX, int indexY)
     {
         Vector2Int buildingSize = Vector2Int.zero;
 
@@ -211,8 +211,8 @@ public class ca_FillMap
             if (indexX + iterator < parameters.mapSizeX)
             {
                 // Check if still in the building
-                if (nodes[indexX + iterator, indexY].state != GridNode.NodeState.OPENDBUILDING && 
-                    nodes[indexX + iterator, indexY].state != GridNode.NodeState.OPENBUILDINGGATE)
+                if (cells[indexX + iterator, indexY].state != Cell.CellState.OPENDBUILDING && 
+                    cells[indexX + iterator, indexY].state != Cell.CellState.OPENBUILDINGGATE)
                     break;
 
                 iterator++;
@@ -231,8 +231,8 @@ public class ca_FillMap
             if (indexY + iterator < parameters.mapSizeY)
             {
                 // Check if still in the building
-                if (nodes[indexX, indexY + iterator].state != GridNode.NodeState.OPENDBUILDING &&
-                    nodes[indexX, indexY + iterator].state != GridNode.NodeState.OPENBUILDINGGATE)
+                if (cells[indexX, indexY + iterator].state != Cell.CellState.OPENDBUILDING &&
+                    cells[indexX, indexY + iterator].state != Cell.CellState.OPENBUILDINGGATE)
                     break;
 
                 iterator++;
@@ -246,7 +246,7 @@ public class ca_FillMap
         return buildingSize;
     }
 
-    Vector2Int GetOpenBuildingGatePosition(GridNode[,] nodes, int startIndexX, int startIndexY, int endIndexX, int endIndexY)
+    Vector2Int GetOpenBuildingGatePosition(Cell[,] cells, int startIndexX, int startIndexY, int endIndexX, int endIndexY)
     {
         Vector2Int gatePosition = Vector2Int.zero;
 
@@ -254,7 +254,7 @@ public class ca_FillMap
         {
             for (int x = startIndexX; x < endIndexX; x++)
             {
-                if (nodes[x, y].state == GridNode.NodeState.OPENBUILDINGGATE)
+                if (cells[x, y].state == Cell.CellState.OPENBUILDINGGATE)
                 {
                     gatePosition.x = x;
                     gatePosition.y = y;
@@ -266,7 +266,7 @@ public class ca_FillMap
 
         return gatePosition;
     }
-    Vector2Int GetFreeAreaSize(GridNode[,] nodes, Grid.MapArea area, int indexX, int indexY)
+    Vector2Int GetFreeAreaSize(Cell[,] cells, MapGenerator.MapArea area, int indexX, int indexY)
     {
         Vector2Int freeAreaSize = Vector2Int.zero;
 
@@ -279,7 +279,7 @@ public class ca_FillMap
             if (indexX + iterator < area.endIndex.x)
             {
                 // Check if still in a free area
-                if (nodes[indexX + iterator, indexY].state != GridNode.NodeState.WALKABLE)
+                if (cells[indexX + iterator, indexY].state != Cell.CellState.WALKABLE)
                     break;
 
                 iterator++;
@@ -304,7 +304,7 @@ public class ca_FillMap
                 // Check if still in a free area
                 for (int x = indexX; x < indexX + freeAreaSize.x; x++)
                 {
-                    if (nodes[x, indexY + iterator].state != GridNode.NodeState.WALKABLE)
+                    if (cells[x, indexY + iterator].state != Cell.CellState.WALKABLE)
                         stillInFreeArea = false;
                 }
 

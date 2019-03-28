@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] BoxCollider2D attackUpCollider;
     [SerializeField] BoxCollider2D attackDownCollider;
 
+    [SerializeField] private float invicibilityTimeAfterHit;
+    
     int movementUp;
     int movementDown;
     int movementRight;
@@ -50,10 +52,20 @@ public class PlayerController : MonoBehaviour
     SpriteRenderer renderer;
     private Rigidbody2D rigid;
 
-    public bool isDashing = false;
-    public bool isAttacking = false;
-    public bool isMoving = false;
+    private enum PlayerState
+    {
+        IDLE,
+        WALKING,
+        ATTACKING,
+        DASHING,
+        DEAD
+    }
 
+    private PlayerState state = PlayerState.IDLE;
+    
+    private float lastHitAt;
+    private PlayerLife life;
+    
     private void Start()
     {
         rage = GetComponent<PlayerRage>();
@@ -63,6 +75,7 @@ public class PlayerController : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         actualOrientation = Orientation.HORIZONTAL;
         sound = GetComponent<SoundPlayerManager>();
+        life = GetComponent<PlayerLife>();
 
         Camera.main.GetComponent<CameraManager>().AddPlayer(this.transform);
     }
@@ -70,29 +83,43 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isAttacking || gameManager.gameState != GameManager.GameState.INGAME)
+        // Check if the game is running
+        if (gameManager.gameState != GameManager.GameState.INGAME)
             return;
-
-        if (isDashing)
-        {
-            if (Time.time > dashStartAt + dashDuration)
-                EndDash();
-            else
-            {
-                Dash();
-                return;
-            }
-        }
-
-        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && !isAttacking && Time.time > lastAttackAt + attackCoolDown)
+        
+        // Check if the user launched an attack
+        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.ATTACKING/*!isAttacking*/ && Time.time > lastAttackAt + attackCoolDown)
             StartAttack();
 
-        Move();
-
+        // Check if the user launched a dash
         if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetAxis("Jump") > 0) && Time.time > lastDashAt + dashCoolDown)
             StartDash();
+        
+        switch (state)
+        {
+            case PlayerState.WALKING:
+                Move();
+                break;
+            case PlayerState.DASHING:
+                if (Time.time > dashStartAt + dashDuration)
+                    EndDash();
+                else
+                {
+                    Dash();
+                    return;
+                }
+                break;
+            case PlayerState.ATTACKING:
+                break;
+            case PlayerState.DEAD:
+                animator.SetBool("isDead", true);
+                break;
+            case PlayerState.IDLE:
+                Move();
+                break;
+        }
 
-        if(!isMoving)
+        if(state == PlayerState.IDLE)
         {
             animator.SetBool("isWalking", false);
             animator.SetBool("isWalkingUp", false);
@@ -146,12 +173,12 @@ public class PlayerController : MonoBehaviour
         Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
 
         moveVector *= moveSpeed * rage.activeRageMultiplier * Time.deltaTime;
-
-        isMoving = true;
-
+        
         if (moveVector == Vector3.zero)
-            isMoving = false;
-
+            state = PlayerState.IDLE;
+        else
+            state = PlayerState.WALKING;
+        
         rigid.velocity = moveVector;
 
         // Animator managing state
@@ -188,8 +215,7 @@ public class PlayerController : MonoBehaviour
 
     void StartDash()
     {
-        //sound.Play(SoundPlayerManager.SoundPlayer.Dash);
-        isDashing = true;
+        state = PlayerState.DASHING;
 
         animator.SetBool("isWalking", false);
         animator.SetBool("isWalkingUp", false);
@@ -222,20 +248,19 @@ public class PlayerController : MonoBehaviour
 
     void EndDash()
     {
-        isDashing = false;
-
         animator.SetBool("isDashing", false);
         animator.SetBool("isDashingUp", false);
         animator.SetBool("isDashingDown", false);
 
         lastDashAt = Time.time;
+
+        state = PlayerState.IDLE;
     }
 
     void StartAttack()
     {
-        //sound.Play(SoundPlayerManager.SoundPlayer.Attack);
-        isAttacking = true;
-
+        state = PlayerState.ATTACKING;
+        
         animator.SetBool("isWalking", false);
         animator.SetBool("isWalkingUp", false);
         animator.SetBool("isWalkingDown", false);
@@ -271,8 +296,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isAttackingUp", false);
         animator.SetBool("isAttackingDown", false);
 
-        isAttacking = false;
-
+        state = PlayerState.IDLE;
+        
         lastAttackAt = Time.time;
     }
 
@@ -285,5 +310,14 @@ public class PlayerController : MonoBehaviour
     {
         return attackDamage;
     }
-
+    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (Time.time > lastHitAt + invicibilityTimeAfterHit && other.tag == "FoeAttack")
+        {
+            lastHitAt = Time.time;
+            if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
+                state = PlayerState.DEAD;
+        }
+    }
 }

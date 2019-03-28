@@ -32,7 +32,7 @@ public class MapDrawer : MonoBehaviour
         tilesReferences = parameters.tilesReferences;
     }
 
-    public void DrawMap(GridNode[,] nodes)
+    public void DrawMap(Cell[,] cells)
     {
         ClearMap();
         
@@ -43,29 +43,29 @@ public class MapDrawer : MonoBehaviour
                 Vector3Int currentCellPosition = solidTileMap.WorldToCell(new Vector3(x * parameters.cellSize.x, y * parameters.cellSize.y));
                 Vector3 currentObjectPosition = solidTileMap.CellToWorld(currentCellPosition) + (parameters.cellSize / 2);
                         
-                switch (nodes[x, y].state)
+                switch (cells[x, y].state)
                 {
-                    case GridNode.NodeState.CLOSEDBUILDING:
+                    case Cell.CellState.CLOSEDBUILDING:
                         if(solidTileMap.GetTile(currentCellPosition) == null)
-                            DrawClosedBuildingPart(nodes, currentCellPosition, x, y);
+                            DrawClosedBuildingPart(cells, currentCellPosition, x, y);
                         break;
-                    case GridNode.NodeState.OPENDBUILDING:
+                    case Cell.CellState.OPENDBUILDING:
                         if (solidTileMap.GetTile(currentCellPosition) == null)
-                            DrawOpenBuildingPart(nodes, currentCellPosition, x, y);
+                            DrawOpenBuildingPart(cells, currentCellPosition, x, y);
                         break;
-                    case GridNode.NodeState.SCRAPITEM:
+                    case Cell.CellState.SCRAPITEM:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
                         scrapContainerList.Add(Instantiate(scrapContainerPrefab, currentObjectPosition, Quaternion.identity));
                         break;
-                    case GridNode.NodeState.PLAYERSPAWN:
+                    case Cell.CellState.PLAYERSPAWN:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
                         playerSpawnTransform.position = currentObjectPosition;
-                        nodes[x, y].state = GridNode.NodeState.WALKABLE;
+                        cells[x, y].state = Cell.CellState.WALKABLE;
                         break;
-                    case GridNode.NodeState.FOESPAWN:
+                    case Cell.CellState.FOESPAWN:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
                         foesList.Add(Instantiate(foePrefab, currentObjectPosition, Quaternion.identity));
-                        nodes[x, y].state = GridNode.NodeState.WALKABLE;
+                        cells[x, y].state = Cell.CellState.WALKABLE;
                         break;
                     default:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
@@ -106,20 +106,20 @@ public class MapDrawer : MonoBehaviour
         }
     }
     
-    void DrawClosedBuildingPart(GridNode[,] nodes, Vector3Int currentCellPosition, int indexX, int indexY)
+    void DrawClosedBuildingPart(Cell[,] cells, Vector3Int currentCellPosition, int indexX, int indexY)
     {
         // Check if at the bottom of the building
-        if (nodes[indexX, indexY - 1].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX, indexY - 1].state != Cell.CellState.CLOSEDBUILDING)
         {
             // Check if on the left corner
-            if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerLeftBottom);
                 return;
             }
 
             // Check if on the right corner
-            if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerRightBottom);
                 return;
@@ -130,17 +130,17 @@ public class MapDrawer : MonoBehaviour
         }
 
         // Check if at the second level of the building
-        if (nodes[indexX, indexY - 2].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX, indexY - 2].state != Cell.CellState.CLOSEDBUILDING)
         {
             // Check if on the left corner
-            if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerLeftMid);
                 return;
             }
 
             // Check if on the right corner
-            if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerRightMid);
                 return;
@@ -151,17 +151,17 @@ public class MapDrawer : MonoBehaviour
         }
 
         // Check if at the third level of the building
-        if (nodes[indexX, indexY - 3].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX, indexY - 3].state != Cell.CellState.CLOSEDBUILDING)
         {
             // Check if on the left corner
-            if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerLeftTop);
                 return;
             }
 
             // Check if on the right corner
-            if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbBottomCornerRightTop);
                 return;
@@ -172,17 +172,17 @@ public class MapDrawer : MonoBehaviour
         }
 
         // Check if at the fourth level of the building
-        if (nodes[indexX, indexY - 4].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX, indexY - 4].state != Cell.CellState.CLOSEDBUILDING)
         {
             // Check if on the left side
-            if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbInnerRoofBottomLeftSide);
                 return;
             }
 
             // Check if on the right side
-            if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbInnerRoofBottomRightSide);
                 return;
@@ -193,17 +193,17 @@ public class MapDrawer : MonoBehaviour
         }
 
         // Check if at the last level of the building
-        if (nodes[indexX, indexY + 1].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX, indexY + 1].state != Cell.CellState.CLOSEDBUILDING)
         {
             // Check if on the left side
-            if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbTopCornerLeft);
                 return;
             }
 
             // Check if on the right side
-            if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+            if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.cbTopCornerRight);
                 return;
@@ -214,14 +214,14 @@ public class MapDrawer : MonoBehaviour
         }
 
         // Check if on the left side
-        if (nodes[indexX - 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX - 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
         {
             solidTileMap.SetTile(currentCellPosition, tilesReferences.cbInnerRoofLeftSide);
             return;
         }
 
         // Check if on the right side
-        if (nodes[indexX + 1, indexY].state != GridNode.NodeState.CLOSEDBUILDING)
+        if (cells[indexX + 1, indexY].state != Cell.CellState.CLOSEDBUILDING)
         {
             solidTileMap.SetTile(currentCellPosition, tilesReferences.cbInnerRoofRightSide);
             return;
@@ -231,7 +231,7 @@ public class MapDrawer : MonoBehaviour
         solidTileMap.SetTile(currentCellPosition, tilesReferences.cbInnerRoof);
     }
 
-    void DrawOpenBuildingPart(GridNode[,] nodes, Vector3Int currentCellPosition, int indexX, int indexY)
+    void DrawOpenBuildingPart(Cell[,] cells, Vector3Int currentCellPosition, int indexX, int indexY)
     {
         int iterator = 0;
 
@@ -243,19 +243,19 @@ public class MapDrawer : MonoBehaviour
         while (true)
         {
             // Check when the iterator reach the end of the building
-            if (nodes[indexX, indexY - iterator - 1].state != GridNode.NodeState.OPENDBUILDING &&
-                nodes[indexX, indexY - iterator - 1].state != GridNode.NodeState.OPENBUILDINGGATE)
+            if (cells[indexX, indexY - iterator - 1].state != Cell.CellState.OPENDBUILDING &&
+                cells[indexX, indexY - iterator - 1].state != Cell.CellState.OPENBUILDINGGATE)
             {
                 // Check if the bottom cell is on left
-                if (nodes[indexX - 1, indexY - iterator].state != GridNode.NodeState.OPENDBUILDING &&
-                    nodes[indexX - 1, indexY - iterator].state != GridNode.NodeState.OPENBUILDINGGATE)
+                if (cells[indexX - 1, indexY - iterator].state != Cell.CellState.OPENDBUILDING &&
+                    cells[indexX - 1, indexY - iterator].state != Cell.CellState.OPENBUILDINGGATE)
                 {
                     isOnLeft = true;
                 }
 
                 // Check if the bottom cell is on right
-                if (nodes[indexX + 1, indexY - iterator].state != GridNode.NodeState.OPENDBUILDING &&
-                    nodes[indexX + 1, indexY - iterator].state != GridNode.NodeState.OPENBUILDINGGATE)
+                if (cells[indexX + 1, indexY - iterator].state != Cell.CellState.OPENDBUILDING &&
+                    cells[indexX + 1, indexY - iterator].state != Cell.CellState.OPENBUILDINGGATE)
                 {
                     isOnRight = true;
                 }
@@ -272,16 +272,16 @@ public class MapDrawer : MonoBehaviour
         if (isOnRight)
         {
             // Check if on the top
-            if (nodes[indexX, indexY + 1].state != GridNode.NodeState.OPENDBUILDING &&
-                nodes[indexX, indexY + 1].state != GridNode.NodeState.OPENBUILDINGGATE)
+            if (cells[indexX, indexY + 1].state != Cell.CellState.OPENDBUILDING &&
+                cells[indexX, indexY + 1].state != Cell.CellState.OPENBUILDINGGATE)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.obCornerTopRight);
                 return;
             }
 
             // Check if on the bottom
-            if (nodes[indexX, indexY - 1].state != GridNode.NodeState.OPENDBUILDING &&
-                nodes[indexX, indexY - 1].state != GridNode.NodeState.OPENBUILDINGGATE)
+            if (cells[indexX, indexY - 1].state != Cell.CellState.OPENDBUILDING &&
+                cells[indexX, indexY - 1].state != Cell.CellState.OPENBUILDINGGATE)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.obCornerBottomRight);
                 return;
@@ -294,16 +294,16 @@ public class MapDrawer : MonoBehaviour
         if (isOnLeft)
         {
             // Check if on the top
-            if (nodes[indexX, indexY + 1].state != GridNode.NodeState.OPENDBUILDING &&
-                nodes[indexX, indexY + 1].state != GridNode.NodeState.OPENBUILDINGGATE)
+            if (cells[indexX, indexY + 1].state != Cell.CellState.OPENDBUILDING &&
+                cells[indexX, indexY + 1].state != Cell.CellState.OPENBUILDINGGATE)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.obCornerTopLeft);
                 return;
             }
 
             // Check if on the bottom
-            if (nodes[indexX, indexY - 1].state != GridNode.NodeState.OPENDBUILDING &&
-                nodes[indexX, indexY - 1].state != GridNode.NodeState.OPENBUILDINGGATE)
+            if (cells[indexX, indexY - 1].state != Cell.CellState.OPENDBUILDING &&
+                cells[indexX, indexY - 1].state != Cell.CellState.OPENBUILDINGGATE)
             {
                 solidTileMap.SetTile(currentCellPosition, tilesReferences.obCornerBottomLeft);
                 return;

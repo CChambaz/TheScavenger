@@ -77,7 +77,7 @@ public class InterLevelMenu : MonoBehaviour
         
         if (playerInventory.scrap >= addArmorCost)
         {
-            playerLife.IncreaseArmor(addArmorAmount, true);
+            playerLife.IncreaseArmor(addArmorAmount);
             playerInventory.AddScrap(-addArmorCost);
         }
     }

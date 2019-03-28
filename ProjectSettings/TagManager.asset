@@ -6,6 +6,8 @@ TagManager:
   tags:
   - PlayerAttack
   - Foe
+  - FoeAttack
+  - PlayerFeet
   layers:
   - Default
   - TransparentFX

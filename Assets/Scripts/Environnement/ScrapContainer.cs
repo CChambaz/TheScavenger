@@ -60,10 +60,11 @@ public class ScrapContainer : MonoBehaviour
                 Instantiate(scrapBigPrefab, transform.position, Quaternion.identity);
         }
         
+        // TODO: Find a way to not destroy it or to update all the nodes and cell
         // Set the node on which the container was as walkable
-        gameManager.grid.nodes[nodeID.x, nodeID.y].state = GridNode.NodeState.WALKABLE;
+        /*gameManager.grid.nodes[nodeID.x, nodeID.y].movementCost = 1f;
         
-        Destroy(gameObject);
+        Destroy(gameObject);*/
     }
 
     void OnTriggerEnter2D(Collider2D col)

@@ -20,7 +20,7 @@ public class ca_BuildingGenerator
         this.parameters = parameters;
     }
     
-    public GridNode[,] GenerateBuildingsInArea(GridNode[,] nodes, int startIndexX, int startIndexY, int endIndexX, int endIndexY)
+    public Cell[,] GenerateBuildingsInArea(Cell[,] cells, int startIndexX, int startIndexY, int endIndexX, int endIndexY)
     {
         // Apply an offset in order to always have a gap between the area border and the building
         startIndexY += parameters.minEmptyCellsBetweenBuilding;
@@ -33,7 +33,7 @@ public class ca_BuildingGenerator
             for (int x = startIndexX; x < endIndexX; x++)
             {
                 // if the current cell has already been set to a special state, go to the next
-                if (nodes[x, y].state != GridNode.NodeState.WALKABLE)
+                if (cells[x, y].state != Cell.CellState.WALKABLE)
                     continue;
 
                 // Random value that define if a building is going to be created
@@ -71,7 +71,7 @@ public class ca_BuildingGenerator
                     buildingSizeX = endIndexX - x;
                 
                 // Check if the building can be built here
-                if (!CheckBuildingPosition(nodes, parameters.minEmptyCellsBetweenBuilding, x, y, buildingSizeX))
+                if (!CheckBuildingPosition(cells, parameters.minEmptyCellsBetweenBuilding, x, y, buildingSizeX))
                     continue;
 
                 // Create the building in the array
@@ -81,7 +81,7 @@ public class ca_BuildingGenerator
                     if (buildingSizeY < parameters.cbMinSizeY || buildingSizeX < parameters.cbMinSizeX)
                         continue;
                     
-                    nodes = SetCellsAsClosedBuilding(nodes, x, y, buildingSizeX, buildingSizeY);
+                    cells = SetCellsAsClosedBuilding(cells, x, y, buildingSizeX, buildingSizeY);
 
                     // Push to the last cell of the building
                     x += buildingSizeX;
@@ -94,7 +94,7 @@ public class ca_BuildingGenerator
                     if (buildingSizeY < parameters.obMinSizeY || buildingSizeX < parameters.obMinSizeX)
                         continue;
                     
-                    nodes = SetCellsAsOpenBuilding(nodes, x, y, buildingSizeX, buildingSizeY);
+                    cells = SetCellsAsOpenBuilding(cells, x, y, buildingSizeX, buildingSizeY);
 
                     // Push to the last cell of the building
                     x += buildingSizeX;
@@ -105,24 +105,23 @@ public class ca_BuildingGenerator
         }
 
         //return cells;
-        return nodes;
+        return cells;
     }
 
-    GridNode[,] SetCellsAsClosedBuilding(GridNode[,] nodes, int indexX, int indexY, int sizeX, int sizeY)
+    Cell[,] SetCellsAsClosedBuilding(Cell[,] cells, int indexX, int indexY, int sizeX, int sizeY)
     {
         for (int x = 0; x < sizeX; x++)
         {
             for (int yb = 0; yb < sizeY; yb++)
             {
-                nodes[indexX + x, indexY + yb].state = GridNode.NodeState.CLOSEDBUILDING;
+                cells[indexX + x, indexY + yb].state = Cell.CellState.CLOSEDBUILDING;
             }
         }
 
-        //return cells;
-        return nodes;
+        return cells;
     }
 
-    GridNode[,] SetCellsAsOpenBuilding(GridNode[,] nodes, int indexX, int indexY, int sizeX, int sizeY)
+    Cell[,] SetCellsAsOpenBuilding(Cell[,] cells, int indexX, int indexY, int sizeX, int sizeY)
     {
         // Create the base structure
         for (int y = 0; y < sizeY; y++)
@@ -132,14 +131,14 @@ public class ca_BuildingGenerator
             {
                 for (int x = 0; x < sizeX; x++)
                 {
-                    nodes[indexX + x, indexY + y].state = GridNode.NodeState.OPENDBUILDING;
+                    cells[indexX + x, indexY + y].state = Cell.CellState.OPENDBUILDING;
                 }
             }
             // Otherwise, assigne the state to the first and last cell on the line
             else
             {
-                nodes[indexX, indexY + y].state = GridNode.NodeState.OPENDBUILDING;
-                nodes[indexX + sizeX - 1, indexY + y].state = GridNode.NodeState.OPENDBUILDING;
+                cells[indexX, indexY + y].state = Cell.CellState.OPENDBUILDING;
+                cells[indexX + sizeX - 1, indexY + y].state = Cell.CellState.OPENDBUILDING;
             }
         }
 
@@ -241,32 +240,19 @@ public class ca_BuildingGenerator
         // Add a way to enter the structure
         if (xIsStatic)
         {
-            if(sizeY / 2 > 0)
-                nodes[fixedValue, indexY + (sizeY / 2)].state = GridNode.NodeState.OPENBUILDINGGATE;
-            else
-                nodes[fixedValue, indexY + 1].state = GridNode.NodeState.OPENBUILDINGGATE;
-
-            // If large enough, add a second cell to the entrance
-            if(sizeY / 2 >= 4)
-                nodes[fixedValue, indexY + (sizeY / 2) + 1].state = GridNode.NodeState.OPENBUILDINGGATE;
+            cells[fixedValue, indexY + (sizeY / 2)].state = Cell.CellState.OPENBUILDINGGATE;
+            cells[fixedValue, indexY + (sizeY / 2) + 1].state = Cell.CellState.OPENBUILDINGGATE;
         }
         else
         {
-            if (sizeX / 2 > 0)
-                nodes[indexX + (sizeX / 2), fixedValue].state = GridNode.NodeState.OPENBUILDINGGATE;
-            else
-                nodes[indexX + 1, fixedValue].state = GridNode.NodeState.OPENBUILDINGGATE;
-
-            // If large enough, add a second cell to the entrance
-            if (sizeX / 2 >= 4)
-                nodes[indexX + (sizeX / 2) + 1, fixedValue].state = GridNode.NodeState.OPENBUILDINGGATE;
+            cells[indexX + (sizeX / 2), fixedValue].state = Cell.CellState.OPENBUILDINGGATE;
+            cells[indexX + (sizeX / 2) + 1, fixedValue].state = Cell.CellState.OPENBUILDINGGATE;
         }
 
-        //return cells;
-        return nodes;
+        return cells;
     }
     
-    bool CheckBuildingPosition(GridNode[,] nodes, int minEmptyCellsBetweenBuilding, int indexX, int indexY, int sizeX)
+    bool CheckBuildingPosition(Cell[,] cells, int minEmptyCellsBetweenBuilding, int indexX, int indexY, int sizeX)
     {
         int leftOffset;
         int rightOffset;
@@ -290,7 +276,7 @@ public class ca_BuildingGenerator
             {
                 for (int i = minEmptyCellsBetweenBuilding; i >= 0; i--)
                 {
-                    if (nodes[indexX + x, indexY - i].state != GridNode.NodeState.WALKABLE)
+                    if (cells[indexX + x, indexY - i].state != Cell.CellState.WALKABLE)
                         return false;
                 }
             }
@@ -298,7 +284,7 @@ public class ca_BuildingGenerator
             {
                 for (int i = indexY; i >= 0; i--)
                 {
-                    if (nodes[indexX + x, indexY - i].state != GridNode.NodeState.WALKABLE)
+                    if (cells[indexX + x, indexY - i].state != Cell.CellState.WALKABLE)
                         return false;
                 }
             }
