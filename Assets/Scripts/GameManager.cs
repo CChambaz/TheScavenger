@@ -67,13 +67,25 @@ public class GameManager : MonoBehaviour
         mapDrawer.DrawMapBorder();
         grid.CreateGrid();
         
-        GenerateMap();
+        //GenerateMap();
     }
 
-    private void GenerateMap()
+    public IEnumerator GenerateMap()
     {
-        mapGenerator.CreateMap();
-        grid.UpdateGridState();
+        StartCoroutine(mapGenerator.GenerateMap());
+
+        while (mapGenerator.isRunning)
+            yield return new WaitForEndOfFrame();
+
+        StartCoroutine(grid.UpdateGrid());
+        
+        while (grid.isRunning)
+            yield return new WaitForEndOfFrame();
+        
+        gameState = GameState.INGAME;
+
+        // Spawn the player
+        playerSpawn.SpawnPlayer();
     }
     
     // Update is called once per frame
@@ -81,14 +93,6 @@ public class GameManager : MonoBehaviour
     {
         if (previousGameState != gameState)
             ApplyChangeState();
-    }
-
-    public void StartLevel()
-    {
-        gameState = GameState.INGAME;
-
-        // Spawn the player
-        playerSpawn.SpawnPlayer();
     }
 
     void ApplyChangeState()
@@ -123,7 +127,6 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.INTERLEVEL:
                 StartCoroutine(Fade(interCanvas, 1));
-                //StartCoroutine(mapGenerator.GenerateMap());
                 break;
             case GameState.DEATH:
                 StartCoroutine(Fade(mainMenuCanvas, 1));
@@ -173,9 +176,8 @@ public class GameManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (true)
+        if (false)
         {
-            
             foreach (var node in grid.nodes)
             {
                 if (node.walkable)
@@ -197,11 +199,11 @@ public class GameManager : MonoBehaviour
                 }
             }
             
-            /*Gizmos.color = Color.green;
+            Gizmos.color = Color.green;
             foreach (var cell in mapGenerator.cells)
             {
                 Gizmos.DrawCube(new Vector3(cell.positionX, cell.positionY), new Vector3(0.1f, 0.1f));
-            }*/
+            }
         }
     }
 }

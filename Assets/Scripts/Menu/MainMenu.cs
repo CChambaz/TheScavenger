@@ -25,38 +25,41 @@ public class MainMenu : MonoBehaviour
         {
             deathText.SetActive(false);
 
-            /*if (mapGenerator.isRunning)
+            if (gameManager.mapGenerator.mapGenerationJob.isRunning)
             {
                 startText.text = "Loading...";
                 startButton.interactable = false;
             }
             else
-            {*/
-                startText.text = "Start";
-                startButton.interactable = true;
-            //}
+            {
+               startText.text = "Start";
+               startButton.interactable = true;
+            }
         }
 
         if (gameManager.gameState == GameManager.GameState.DEATH)
         {
             deathText.SetActive(true);
 
-            /*if (mapGenerator.isRunning)
+            if (gameManager.mapGenerator.mapGenerationJob.isRunning)
             {
                 startText.text = "Loading...";
                 startButton.interactable = false;
             }
             else
-            {*/
+            {
                 startText.text = "Retry";
                 startButton.interactable = true;
-            //}
+            }
         }
     }
 
     public void StartGame()
     {
-        gameManager.StartLevel();
+        startText.text = "Loading...";
+        startButton.interactable = false;
+        
+        StartCoroutine(gameManager.GenerateMap());
     }
 
     public void ExitGame()

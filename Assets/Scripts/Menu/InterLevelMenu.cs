@@ -99,6 +99,6 @@ public class InterLevelMenu : MonoBehaviour
 
     public void NextLevel()
     {
-        gameManager.StartLevel();
+        StartCoroutine(gameManager.GenerateMap());
     }
 }

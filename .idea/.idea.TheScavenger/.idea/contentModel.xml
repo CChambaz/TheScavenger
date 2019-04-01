@@ -83,10 +83,7 @@
           <e p="Grid" t="Include">
             <e p="Grid.cs" t="Include" />
             <e p="GridNode.cs" t="Include" />
-            <e p="Parameters" t="Include">
-              <e p="MapParameters.cs" t="Include" />
-              <e p="TilesReferences.cs" t="Include" />
-            </e>
+            <e p="GridUpdateJob.cs" t="Include" />
           </e>
           <e p="Items" t="Include">
             <e p="Item.cs" t="Include" />
@@ -94,13 +91,20 @@
               <e p="Items.cs" t="Include" />
             </e>
           </e>
-          <e p="MapGenerator" t="Include">
-            <e p="bsp_MapDivider.cs" t="Include" />
-            <e p="ca_BuildingGenerator.cs" t="Include" />
-            <e p="ca_FillMap.cs" t="Include" />
+          <e p="Map" t="Include">
             <e p="Cell.cs" t="Include" />
+            <e p="GenerationUtilities" t="Include">
+              <e p="bsp_MapDivider.cs" t="Include" />
+              <e p="ca_BuildingGenerator.cs" t="Include" />
+              <e p="ca_FillMap.cs" t="Include" />
+            </e>
             <e p="MapDrawer.cs" t="Include" />
+            <e p="MapGenerationJob.cs" t="Include" />
             <e p="MapGenerator.cs" t="Include" />
+            <e p="Parameters" t="Include">
+              <e p="MapParameters.cs" t="Include" />
+              <e p="TilesReferences.cs" t="Include" />
+            </e>
           </e>
           <e p="Menu" t="Include">
             <e p="InterLevelMenu.cs" t="Include" />

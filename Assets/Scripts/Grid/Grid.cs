@@ -9,11 +9,35 @@ public class Grid
     private MapParameters parameters;
 
     private MapGenerator mapGenerator;
+
+    public GridUpdateJob gridUpdateJob;
+
+    public bool isRunning = false;
     
     public Grid(MapParameters parameters, MapGenerator generator)
     {
         this.parameters = parameters;
         mapGenerator = generator;
+        
+        nodes = new GridNode[parameters.mapSizeX - 1, parameters.mapSizeY - 1];
+
+        for (int x = 0; x < parameters.mapSizeX - 1; x++)
+        {
+            float nodePosX = (x * parameters.cellSize.x) + parameters.cellSize.x;
+            
+            for (int y = 0; y < parameters.mapSizeY - 1; y++)
+            {
+                float nodePosY = (y * parameters.cellSize.y) + parameters.cellSize.y;
+                
+                nodes[x, y] = new GridNode(x, y, nodePosX, nodePosY);
+            }
+        }
+        
+        gridUpdateJob = new GridUpdateJob();
+
+        gridUpdateJob.nodes = nodes;
+        gridUpdateJob.parameters = parameters;
+        gridUpdateJob.mapGenerator = mapGenerator;
     }
     
     public void CreateGrid()
@@ -33,62 +57,14 @@ public class Grid
         }
     }
 
-    public void UpdateGridState()
+    public IEnumerator UpdateGrid()
     {
-        // Update the state of the nodes
-        for (int x = 0; x < parameters.mapSizeX - 1; x++)
-        {
-            for (int y = 0; y < parameters.mapSizeY - 1; y++)
-            {
-                if (!mapGenerator.cells[x, y].walkable ||
-                    !mapGenerator.cells[x + 1, y].walkable ||
-                    !mapGenerator.cells[x, y + 1].walkable ||
-                    !mapGenerator.cells[x + 1, y + 1].walkable)
-                    nodes[x, y].movementCost = 0f;
-                else
-                    nodes[x, y].movementCost = 1f;
-            }
-        }
+        gridUpdateJob.Execute();
         
-        // Update the neighbours of all the nodes
-        for (int x = 0; x < parameters.mapSizeX - 1; x++)
-        {
-            for (int y = 0; y < parameters.mapSizeY - 1; y++)
-            {
-                nodes[x, y].neighbours = GetNeighbours(nodes[x, y]);
-            }
-        }
-    }
-    
-    public List<GridNode> GetNeighbours(GridNode node)
-    {
-        List<GridNode> neighbours = new List<GridNode>();
-        
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                // Check if equivalent to the current node
-                if (x == 0 && y == 0)
-                    continue;
+        while (gridUpdateJob.isRunning)
+            yield return new WaitForEndOfFrame();
 
-                // Set the neighbour ID
-                int indexX = node.gridIndexX + x;
-                int indexY = node.gridIndexY + y;
-                    
-                // Check if the node exist)
-                if (indexX >= 0 && indexX < parameters.mapSizeX - 1 && indexY >= 0 && indexY < parameters.mapSizeY - 1)
-                {
-                    // Check if the node is walkable
-                    if (!nodes[indexX, indexY].walkable)
-                        continue;
-                    
-                    neighbours.Add(nodes[indexX, indexY]);
-                }
-            }
-        }
-
-        return neighbours;
+        nodes = gridUpdateJob.nodes;
     }
     
     public Vector2Int GetNodeIDFromPosition(Vector2 position)
