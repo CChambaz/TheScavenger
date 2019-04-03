@@ -4,18 +4,6 @@ using UnityEngine;
 
 public class GridNode
 {
-    /*public enum NodeState
-    {
-        WALKABLE,
-        CLOSEDBUILDING,
-        OPENDBUILDING,
-        OPENBUILDINGGATE,
-        SCRAPITEM,
-        FOESPAWN,
-        PLAYERSPAWN
-    }
-    
-    public NodeState state;*/
     public int gridIndexX;
     public int gridIndexY;
     public float gridPositionX;

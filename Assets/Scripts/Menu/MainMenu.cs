@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("Menu components")]
-    [SerializeField] GameObject deathText;
+    [SerializeField] TextMeshProUGUI deathText;
     [SerializeField] Text startText;
     [SerializeField] private Button startButton;
-
+    
     private GameManager gameManager;
     private MapDrawer mapDrawer;
 
@@ -23,9 +24,9 @@ public class MainMenu : MonoBehaviour
     {
         if (gameManager.gameState == GameManager.GameState.MAINMENU)
         {
-            deathText.SetActive(false);
+            deathText.gameObject.SetActive(false);
 
-            if (gameManager.mapGenerator.mapGenerationJob.isRunning)
+            if (gameManager.generationInProgress)
             {
                 startText.text = "Loading...";
                 startButton.interactable = false;
@@ -39,9 +40,10 @@ public class MainMenu : MonoBehaviour
 
         if (gameManager.gameState == GameManager.GameState.DEATH)
         {
-            deathText.SetActive(true);
-
-            if (gameManager.mapGenerator.mapGenerationJob.isRunning)
+            deathText.gameObject.SetActive(true);
+            deathText.text = "You bravely survived " + gameManager.levelNumber + " days.";
+            
+            if (gameManager.generationInProgress)
             {
                 startText.text = "Loading...";
                 startButton.interactable = false;

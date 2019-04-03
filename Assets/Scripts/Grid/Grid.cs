@@ -12,8 +12,6 @@ public class Grid
 
     public GridUpdateJob gridUpdateJob;
 
-    public bool isRunning = false;
-    
     public Grid(MapParameters parameters, MapGenerator generator)
     {
         this.parameters = parameters;
@@ -33,11 +31,15 @@ public class Grid
             }
         }
         
+    }
+
+    public void PrepareGridUpdateJob()
+    {
+        
         gridUpdateJob = new GridUpdateJob();
 
-        gridUpdateJob.nodes = nodes;
-        gridUpdateJob.parameters = parameters;
-        gridUpdateJob.mapGenerator = mapGenerator;
+        gridUpdateJob.mapSizeX = parameters.mapSizeX;
+        gridUpdateJob.mapSizeY = parameters.mapSizeY;
     }
     
     public void CreateGrid()
@@ -55,16 +57,56 @@ public class Grid
                 nodes[x, y] = new GridNode(x, y, nodePosX, nodePosY);
             }
         }
+
+        foreach (GridNode node in nodes)
+        {
+            node.neighbours = GetAllNeighbours(node);
+        }
     }
 
-    public IEnumerator UpdateGrid()
+    public void TranslateGridUpdateJobResult()
     {
-        gridUpdateJob.Execute();
+        for (int y = 0; y < parameters.mapSizeY - 1; y++)
+        {
+            for (int x = 0; x < parameters.mapSizeX - 1; x++)
+            {
+                // Define wheter or not the node is walkable
+                nodes[x, y].movementCost = gridUpdateJob.result[x + (y * (parameters.mapSizeX - 1))] == 1 ? 1f : 0f;
+            }
+        }
         
-        while (gridUpdateJob.isRunning)
-            yield return new WaitForEndOfFrame();
+        gridUpdateJob.result.Dispose();
+    }
+    
+    public List<GridNode> GetAllNeighbours(GridNode node)
+    {
+        List<GridNode> neighbours = new List<GridNode>();
+        
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                // Check if equivalent to the current node
+                if (x == 0 && y == 0)
+                    continue;
 
-        nodes = gridUpdateJob.nodes;
+                // Set the neighbour ID
+                int indexX = node.gridIndexX + x;
+                int indexY = node.gridIndexY + y;
+                    
+                // Check if the node exist
+                if (indexX >= 0 && indexX < parameters.mapSizeX - 1 && indexY >= 0 && indexY < parameters.mapSizeY - 1)
+                {
+                    // Check if the node is walkable
+                    /*if (!nodes[indexX, indexY].walkable)
+                        continue;*/
+                    
+                    neighbours.Add(nodes[indexX, indexY]);
+                }
+            }
+        }
+
+        return neighbours;
     }
     
     public Vector2Int GetNodeIDFromPosition(Vector2 position)

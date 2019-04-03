@@ -1513,7 +1513,7 @@ MonoBehaviour:
   m_firstVisibleCharacter: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -260.05084, y: 0, z: -253.62987, w: -99.52563}
+  m_margin: {x: -741.5991, y: 0, z: -732.79443, w: -99.52563}
   m_textInfo:
     textComponent: {fileID: 828708539}
     characterCount: 14
@@ -1870,7 +1870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fe5b572128ee141a4253aa0769a4ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathText: {fileID: 828708537}
+  deathText: {fileID: 828708539}
   startText: {fileID: 1273620904}
   startButton: {fileID: 1068051267}
 --- !u!1 &1166030904
@@ -2591,6 +2591,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1728462873}
   m_CullTransparentMesh: 0
+--- !u!1 &1989848445
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1989848447}
+  - component: {fileID: 1989848446}
+  m_Layer: 0
+  m_Name: PathManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1989848446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989848445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 043fd766d493e3e45a67112abe90e97e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxUpdateTime: 0.16
+--- !u!4 &1989848447
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989848445}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 86.6706, y: 96.2031, z: -0.07421875}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2013813859
 GameObject:
   m_ObjectHideFlags: 0
@@ -2825,6 +2869,9 @@ MonoBehaviour:
   playerPrefab: {fileID: 1258205763557482105, guid: df543270d3fb6464a8446c0528cce65d,
     type: 3}
   parameters: {fileID: 11400000, guid: 6579da96c94dc2044a4684ca7c5fa6d8, type: 2}
+  seed: 0
+  levelNumber: 0
+  generationInProgress: 0
   mapDrawer: {fileID: 1378298974}
   playerSpawn: {fileID: 0}
   player: {fileID: 0}

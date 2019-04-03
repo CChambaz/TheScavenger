@@ -78,6 +78,7 @@
           <e p="Foes" t="Include">
             <e p="AStarPathfinding.cs" t="Include" />
             <e p="FoeController.cs" t="Include" />
+            <e p="PathFindingManager.cs" t="Include" />
           </e>
           <e p="GameManager.cs" t="Include" />
           <e p="Grid" t="Include">

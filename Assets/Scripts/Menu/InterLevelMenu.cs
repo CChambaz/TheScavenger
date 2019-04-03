@@ -44,16 +44,16 @@ public class InterLevelMenu : MonoBehaviour
             if (playerLife == null)
                 playerLife = FindObjectOfType<PlayerLife>();
             
-            /*if (mapGenerator.isRunning)
+            if (gameManager.generationInProgress)
             {
                 textNextLevel.text = "Loading..";
                 nextLevelButton.interactable = false;
             }
             else
-            {*/
+            {
                 textNextLevel.text = "Next level..";
                 nextLevelButton.interactable = true;
-            //}
+            }
 
             if (playerLife.activeArmor >= playerLife.maxArmor)
                 textArmor.text = "Increase armor";

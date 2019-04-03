@@ -327,7 +327,7 @@ MonoBehaviour:
   attackLeftCollider: {fileID: 1258205762454945285}
   attackUpCollider: {fileID: 1258205763955283729}
   attackDownCollider: {fileID: 1258205762772652014}
-  invicibilityTimeAfterHit: 5
+  invicibilityTimeAfterHit: 1.5
 --- !u!114 &1258205763557482110
 MonoBehaviour:
   m_ObjectHideFlags: 0

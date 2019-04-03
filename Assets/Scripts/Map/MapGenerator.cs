@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
+using Unity.Mathematics;
 
 public class MapGenerator
 {
@@ -15,27 +17,12 @@ public class MapGenerator
     private List<MapArea> mapAreaList;
     private MapParameters parameters;
     
-    private bsp_MapDivider mapDivider;
-    private ca_BuildingGenerator buildingGenerator;
-    private ca_FillMap fillMap;
-    private MapDrawer mapDrawer;
-
     public MapGenerationJob mapGenerationJob;
-
-
-    public bool isRunning = false;
     
     // Start is called before the first frame update
-    public MapGenerator(MapParameters parameters, MapDrawer drawer)
+    public MapGenerator(MapParameters parameters, MapDrawer drawer, uint seed)
     {
-        mapGenerationJob = new MapGenerationJob();
-        
         this.parameters = parameters;
-        
-        mapDrawer = drawer;
-        mapDivider = new bsp_MapDivider(this.parameters);
-        buildingGenerator = new ca_BuildingGenerator(this.parameters);
-        fillMap = new ca_FillMap(this.parameters);
         
         // Init the map array
         cells = new Cell[parameters.mapSizeX, parameters.mapSizeY];
@@ -51,27 +38,75 @@ public class MapGenerator
                 cells[x, y] = new Cell(x, y, cellPosX, cellPosY);
             }
         }
-
-        mapGenerationJob.cells = cells;
-        mapGenerationJob.parameters = parameters;
-        mapGenerationJob.fillMap = fillMap;
-        mapGenerationJob.mapDivider = mapDivider;
-        mapGenerationJob.buildingGenerator = buildingGenerator;
     }
 
-    public IEnumerator GenerateMap()
+    public void PrepareMapGenerationJob()
     {
-        isRunning = true;
+        mapGenerationJob = new MapGenerationJob();
         
-        mapGenerationJob.Execute();
+        mapGenerationJob.mapSizeX = parameters.mapSizeX;
+        mapGenerationJob.mapSizeY = parameters.mapSizeY;
+        mapGenerationJob.spawnAreaSizeX = parameters.spawnAreaSize.x;
+        mapGenerationJob.spawnAreaSizeY = parameters.spawnAreaSize.y;
+        mapGenerationJob.minAreaSize = parameters.minAreaSize;
+        mapGenerationJob.maxAreaSize = parameters.maxAreaSize;
+        mapGenerationJob.minEmptyCellsBetweenBuilding = parameters.minEmptyCellsBetweenBuilding;
+        mapGenerationJob.cbMinSizeX = parameters.cbMinSizeX;
+        mapGenerationJob.cbMinSizeY = parameters.cbMinSizeY;
+        mapGenerationJob.cbMaxSizeX = parameters.cbMaxSizeX;
+        mapGenerationJob.cbMaxSizeY = parameters.cbMaxSizeY;
+        mapGenerationJob.obMinSizeX = parameters.obMinSizeX;
+        mapGenerationJob.obMinSizeY = parameters.obMinSizeY;
+        mapGenerationJob.obMaxSizeX = parameters.obMaxSizeX;
+        mapGenerationJob.obMaxSizeY = parameters.obMaxSizeY;
+        mapGenerationJob.cbSpawnChance = parameters.cbSpawnChance;
+        mapGenerationJob.obSpawnChance = parameters.obSpawnChance;
+        mapGenerationJob.minOpenBuildingFoes = parameters.minOpenBuildingFoes;
+        mapGenerationJob.maxOpenBuildingFoes = parameters.maxOpenBuildingFoes;
+        mapGenerationJob.minStreetFoes = parameters.minStreetFoes;
+        mapGenerationJob.maxStreetFoes = parameters.maxStreetFoes;
+        mapGenerationJob.minOpenBuildingItem = parameters.minOpenBuildingItem;
+        mapGenerationJob.maxOpenBuildingItem = parameters.maxOpenBuildingItem;
+        mapGenerationJob.minOpenBuildingAreaToSpawnFoes = parameters.minOpenBuildingAreaToSpawnFoes;
+        mapGenerationJob.minStreetAreaToSpawnFoes = parameters.minStreetAreaToSpawnFoes;
+        mapGenerationJob.foesSpawnChance = parameters.foesSpawnChance;
+        mapGenerationJob.itemSpawnChance = parameters.itemSpawnChance;
+    }
 
-        while (mapGenerationJob.isRunning)
-            yield return new WaitForEndOfFrame();
-
-        cells = mapGenerationJob.cells;
+    public void TranslateNativeArrayToCellBiArray()
+    {
+        for (int y = 0; y < parameters.mapSizeY; y++)
+        {
+            for (int x = 0; x < parameters.mapSizeX; x++)
+            {
+                switch (mapGenerationJob.result[x + (y * parameters.mapSizeX)])
+                {
+                    case 2:
+                        cells[x, y].state = Cell.CellState.CLOSEDBUILDING;
+                        break;
+                    case 3:
+                        cells[x, y].state = Cell.CellState.OPENDBUILDING;
+                        break;
+                    case 4:
+                        cells[x, y].state = Cell.CellState.OPENBUILDINGGATE;
+                        break;
+                    case 5:
+                        cells[x, y].state = Cell.CellState.SCRAPITEM;
+                        break;
+                    case 6:
+                        cells[x, y].state = Cell.CellState.FOESPAWN;
+                        break;
+                    case 7:
+                        cells[x, y].state = Cell.CellState.PLAYERSPAWN;
+                        break;
+                    default:
+                        cells[x, y].state = Cell.CellState.WALKABLE;
+                        break;
+                }
+            }
+        }
         
-        mapDrawer.DrawMap(cells);
-
-        isRunning = false;
+        // Free the result native array
+        mapGenerationJob.result.Dispose();
     }
 }

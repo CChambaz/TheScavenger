@@ -40,20 +40,23 @@ public class FoeController : MonoBehaviour
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
     public Transform playerTransform;
-    private List<Vector3> path = null;
+    public List<Vector3> path = null;
     private int nextPathPointID = 0;
     private int life;
     private GameManager gameManager;
     private Animator animator;
     private BoxCollider2D collider;
     private Coroutine attackCoroutine = null;
-    
+    public Vector3 target;
     private float attackStartAt;
     private float lastPathGetAt = 0;
+
+    private PathFindingManager pathFindingManager;
     
     private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
+        pathFindingManager = FindObjectOfType<PathFindingManager>();
         playerTransform = gameManager.GetPlayerTranform();
     }
 
@@ -66,7 +69,7 @@ public class FoeController : MonoBehaviour
         renderer = GetComponent<SpriteRenderer>();
         
         // Define the attack range
-        attackRange = attackSpeed * attackDuration * Time.deltaTime;
+        attackRange = attackSpeed * attackDuration * Time.fixedDeltaTime;
 
         life = maxLife;
     }
@@ -85,7 +88,6 @@ public class FoeController : MonoBehaviour
                     UpdateState();
                     break;
                 case State.POSITIONING:
-                    GoAtRange();
                     break;
                 case State.ATTACK:
                     break;
@@ -108,7 +110,8 @@ public class FoeController : MonoBehaviour
                 case State.PATROL:
                     break;
                 case State.POSITIONING:
-                    moveFollowingPath();
+                    target = playerTransform.position;
+                    GoAtRange();
                     break;
                 case State.FLEE:
                     break;
@@ -131,33 +134,37 @@ public class FoeController : MonoBehaviour
         // Check if the player is at range
         if ((playerTransform.position - transform.position).magnitude <= attackRange)
         {
-            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
-            
-            // Check if the foe has a direct line of view to the player
-            if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
-            {
-                // Launch the attack
-                state = State.ATTACK;
-                rigid.velocity = Vector2.zero;
-                animator.SetBool("isMoving", false);
-                animator.SetBool("isPreparingAttack", true);
-                path = null;
-                return;
-            }
+            // Launch the attack
+            state = State.ATTACK;
+            rigid.velocity = Vector2.zero;
+            animator.SetBool("isMoving", false);
+            animator.SetBool("isPreparingAttack", true);
+            path = null;
+            return;
         }
         
-        // Get path to the player
-        path = gameManager.GetPathTo(transform.position, playerTransform.position);
-
-        if (path != null)
+        RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
+        
+        // Check if the foe has a direct line of view to the player
+        if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
         {
-            Debug.Log("Following path");
-            
+            moveToTarget();
+        } 
+        else if (path != null && path.Count > 0)
+        {
             // Follow the path
             moveFollowingPath();
-
-            animator.SetBool("isMoving", true);
         }
+        else
+        {
+            // Get path to the player
+            pathFindingManager.RegisterToQueue(this);
+            
+            // Go straight to the player
+            moveToTarget();
+        }
+        
+        animator.SetBool("isMoving", true);
     }
 
     private void LaunchAttack()
@@ -195,7 +202,7 @@ public class FoeController : MonoBehaviour
     private void moveToTarget()
     {
         // Set speed to rush strait to the player
-        Vector3 moveVector = playerTransform.position - transform.position;
+        Vector3 moveVector = target - transform.position;
         
         rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
         renderer.flipX = rigid.velocity.x < 0;
@@ -218,6 +225,13 @@ public class FoeController : MonoBehaviour
         rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
         
         renderer.flipX = rigid.velocity.x < 0;
+        
+        // Check if the node has been reach
+        if(path[path.Count - 1].x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
+           path[path.Count - 1].x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
+           path[path.Count - 1].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
+           path[path.Count - 1].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+            path.RemoveAt(path.Count - 1);
     }
 
     private void Die()
@@ -233,6 +247,7 @@ public class FoeController : MonoBehaviour
         rigid.isKinematic = true;
         collider.isTrigger = true;
         rigid.velocity = Vector2.zero;
+        state = State.DEAD;
     }
     
     private void OnTriggerEnter2D(Collider2D other)
@@ -252,7 +267,7 @@ public class FoeController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (true && path != null)
+        if (false && path != null)
         {
             // Draw the path
             for (int i = 0; i < path.Count; i++)

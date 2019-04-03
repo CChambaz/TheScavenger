@@ -170,10 +170,10 @@ MonoBehaviour:
   attackDamage: 25
   getPathCD: 10
   hitBox: {fileID: 710652072813558022}
-  repulsiveRadius: 2
-  maxRepulsiveForce: 0
   state: 0
   playerTransform: {fileID: 0}
+  path: []
+  target: {x: 0, y: 0, z: 0}
 --- !u!1 &6893994978750119949
 GameObject:
   m_ObjectHideFlags: 0

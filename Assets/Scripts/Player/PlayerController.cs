@@ -77,18 +77,18 @@ public class PlayerController : MonoBehaviour
         sound = GetComponent<SoundPlayerManager>();
         life = GetComponent<PlayerLife>();
 
-        Camera.main.GetComponent<CameraManager>().AddPlayer(this.transform);
+        Camera.main.GetComponent<CameraManager>().AddPlayer(transform);
     }
 
     // Update is called once per frame
     void Update()
     {
         // Check if the game is running
-        if (gameManager.gameState != GameManager.GameState.INGAME)
+        if (gameManager.gameState != GameManager.GameState.INGAME || state == PlayerState.DEAD)
             return;
         
         // Check if the user launched an attack
-        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.ATTACKING/*!isAttacking*/ && Time.time > lastAttackAt + attackCoolDown)
+        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.ATTACKING && Time.time > lastAttackAt + attackCoolDown)
             StartAttack();
 
         // Check if the user launched a dash
@@ -112,7 +112,6 @@ public class PlayerController : MonoBehaviour
             case PlayerState.ATTACKING:
                 break;
             case PlayerState.DEAD:
-                animator.SetBool("isDead", true);
                 break;
             case PlayerState.IDLE:
                 Move();
@@ -317,7 +316,18 @@ public class PlayerController : MonoBehaviour
         {
             lastHitAt = Time.time;
             if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
+            {
+                rigid.isKinematic = true;
+                animator.SetBool("isIdleUp", false);
+                animator.SetBool("isIdleDown", false);
+                animator.SetBool("isWalking", false);
+                animator.SetBool("isWalkingUp", false);
+                animator.SetBool("isWalkingDown", false);
+                animator.SetBool("isDead", true);
+                rigid.velocity = Vector2.zero;
                 state = PlayerState.DEAD;
+                gameManager.gameState = GameManager.GameState.DEATH;
+            }
         }
     }
 }

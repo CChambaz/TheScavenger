@@ -13,7 +13,6 @@ public class AStarPathfinding
     
     public List<Vector3> GetPathTo(Grid grid, Vector2 startPosition, Vector2 targetPosition)
     {
-        Debug.Log("Start path calculation");
         // Check if the target is outside of the map
         if (targetPosition.x < 0 || targetPosition.x >= parameters.mapSizeX || targetPosition.y < 0 || targetPosition.y >= parameters.mapSizeY)
             return null;
@@ -21,9 +20,6 @@ public class AStarPathfinding
         // Get the node IDs of the current position and of the target
         Vector2Int currentNodeID = grid.GetNodeIDFromPosition(startPosition);
         Vector2Int targetNodeID = grid.GetNodeIDFromPosition(targetPosition);
-
-        /*if (currentNodeID == Vector2Int.zero || targetNodeID == Vector2Int.zero)
-            return null;*/
         
         // Get the node of the current position and of the target
         GridNode startingNode = grid.nodes[currentNodeID.x, currentNodeID.y];

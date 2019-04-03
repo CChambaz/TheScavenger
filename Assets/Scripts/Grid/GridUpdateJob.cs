@@ -2,74 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Collections;
 
 public struct GridUpdateJob : IJob
 {
-    public GridNode[,] nodes;
-    public MapParameters parameters;
-    public MapGenerator mapGenerator;
-
-    public bool isRunning;
+    public NativeArray<int> result;
+    public NativeArray<int> cells;
+    
+    public int mapSizeX;
+    public int mapSizeY;
     
     public void Execute()
     {
-        isRunning = true;
-        
         // Update the state of the nodes
-        for (int x = 0; x < parameters.mapSizeX - 1; x++)
+        for (int x = 0; x < mapSizeX - 1; x++)
         {
-            for (int y = 0; y < parameters.mapSizeY - 1; y++)
+            for (int y = 0; y < mapSizeY - 1; y++)
             {
-                if (!mapGenerator.cells[x, y].walkable ||
-                    !mapGenerator.cells[x + 1, y].walkable ||
-                    !mapGenerator.cells[x, y + 1].walkable ||
-                    !mapGenerator.cells[x + 1, y + 1].walkable)
-                    nodes[x, y].movementCost = 0f;
+                if (!NativeCellIsWalkable(x + (y * mapSizeX)) ||
+                    !NativeCellIsWalkable(x + 1 + (y * mapSizeX)) ||
+                    !NativeCellIsWalkable(x + (y + 1) * mapSizeX) ||
+                    !NativeCellIsWalkable(x + 1 + (y + 1) * mapSizeX))
+                    result[x + (y * (mapSizeX - 1))] = 0;
                 else
-                    nodes[x, y].movementCost = 1f;
+                    result[x + (y * (mapSizeX - 1))] = 1;
             }
         }
-        
-        // Update the neighbours of all the nodes
-        for (int x = 0; x < parameters.mapSizeX - 1; x++)
-        {
-            for (int y = 0; y < parameters.mapSizeY - 1; y++)
-            {
-                nodes[x, y].neighbours = GetNeighbours(nodes[x, y]);
-            }
-        }
-
-        isRunning = false;
     }
-    
-    public List<GridNode> GetNeighbours(GridNode node)
+
+    private bool NativeCellIsWalkable(int cellID)
     {
-        List<GridNode> neighbours = new List<GridNode>();
-        
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                // Check if equivalent to the current node
-                if (x == 0 && y == 0)
-                    continue;
+        if (cells[cellID] != 1 &&
+            cells[cellID] != 4 &&
+            cells[cellID] != 6 &&
+            cells[cellID] != 7)
+            return false;
 
-                // Set the neighbour ID
-                int indexX = node.gridIndexX + x;
-                int indexY = node.gridIndexY + y;
-                    
-                // Check if the node exist)
-                if (indexX >= 0 && indexX < parameters.mapSizeX - 1 && indexY >= 0 && indexY < parameters.mapSizeY - 1)
-                {
-                    // Check if the node is walkable
-                    if (!nodes[indexX, indexY].walkable)
-                        continue;
-                    
-                    neighbours.Add(nodes[indexX, indexY]);
-                }
-            }
-        }
-
-        return neighbours;
+        return true;
     }
 }
