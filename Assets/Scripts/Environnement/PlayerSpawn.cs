@@ -12,11 +12,15 @@ public class PlayerSpawn : MonoBehaviour
     private Animator animController;
 
     private bool isPlayerOnSpawn = false;
-    
+
+    private void Awake()
+    {
+        animController = GetComponent<Animator>();
+    }
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        animController = GetComponent<Animator>();
         playerTransform = gameManager.GetPlayerTranform();
     }
 

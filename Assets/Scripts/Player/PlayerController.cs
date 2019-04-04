@@ -92,7 +92,7 @@ public class PlayerController : MonoBehaviour
             StartAttack();
 
         // Check if the user launched a dash
-        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetAxis("Jump") > 0) && Time.time > lastDashAt + dashCoolDown)
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetAxis("Jump") > 0) && state != PlayerState.DASHING && Time.time > lastDashAt + dashCoolDown)
             StartDash();
         
         switch (state)

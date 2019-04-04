@@ -88,8 +88,8 @@ public class ca_FillMap
         float rnd = Random.Range(0f, 1f);
 
         // Define if there is enough place to spawn foes
-        if ((buildingSize.x - 2) * (buildingSize.y - 2) > parameters.minOpenBuildingAreaToSpawnFoes || rnd > parameters.foesSpawnChance)
-            foesToSpawn = 0;
+/*        if ((buildingSize.x - 2) * (buildingSize.y - 2) > parameters.minOpenBuildingAreaToSpawnFoes || rnd > parameters.foesSpawnChance)
+            foesToSpawn = 0;*/
 
         if (hasNotSpawnScrapSince < parameters.forceSpawnScrapWhenHasNotSpawnSince && rnd > parameters.itemSpawnChance)
         {
@@ -177,8 +177,8 @@ public class ca_FillMap
 
         float rnd = Random.Range(0f, 1f);
 
-        if (freeAreaSize.x * freeAreaSize.y > parameters.minStreetAreaToSpawnFoes && rnd > parameters.foesSpawnChance)
-            foesToSpawn = 0;
+        /*if (freeAreaSize.x * freeAreaSize.y > parameters.minStreetAreaToSpawnFoes && rnd > parameters.foesSpawnChance)
+            foesToSpawn = 0;*/
 
         for (int y = indexY; y < indexY + freeAreaSize.y; y++)
         {

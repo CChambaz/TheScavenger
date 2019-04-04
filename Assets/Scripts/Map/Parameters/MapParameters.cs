@@ -42,7 +42,8 @@ public class MapParameters : ScriptableObject
     [SerializeField] public Vector2Int spawnAreaSize;
     
     [Header("Foes parameters")]
-    [Range(0f, 1f)] [SerializeField] public float foesSpawnChance;
+    [Range(0f, 1f)] [SerializeField] public float obFoesSpawnChance;
+    [Range(0f, 1f)] [SerializeField] public float freeAreaFoesSpawnChance;
     [Range(10, 30)] [SerializeField] public int minStreetAreaToSpawnFoes;
     [Range(0, 5)] [SerializeField] public int minStreetFoes;
     [Range(1, 7)] [SerializeField] public int maxStreetFoes;

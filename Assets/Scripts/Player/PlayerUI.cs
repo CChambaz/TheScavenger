@@ -47,7 +47,7 @@ public class PlayerUI : MonoBehaviour
             UpdateScrap();
 
         if (previousFood != playerInventory.food)
-            UpdateScrap();
+            UpdateFood();
     }
 
     void UpdateLife()
@@ -81,7 +81,7 @@ public class PlayerUI : MonoBehaviour
     {
         foodText.text = playerInventory.food.ToString();
 
-        previousScrap = playerInventory.food;
+        previousFood = playerInventory.food;
     }
 
     IEnumerator Fill(Image imageToFill, float fillGoal)

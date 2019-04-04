@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b32e6f98f65c8a418fc7f9492f6be88, type: 3}
   m_Name: CommonParameters
   m_EditorClassIdentifier: 
-  mapSizeX: 250
-  mapSizeY: 250
+  mapSizeX: 75
+  mapSizeY: 75
   cellSize: {x: 0.635, y: 0.635, z: 0}
   minAreaSize: 30
   maxAreaSize: 30
@@ -26,19 +26,20 @@ MonoBehaviour:
   obMaxSizeX: 8
   obMinSizeY: 6
   obMaxSizeY: 8
-  cbSpawnChance: 0.4
-  obSpawnChance: 0.6
-  forceOBSpawnAfter: 4
+  cbSpawnChance: 0.5
+  obSpawnChance: 0.8
+  forceOBSpawnAfter: 6
   spawnAreaSize: {x: 30, y: 30}
-  foesSpawnChance: 0.1
+  obFoesSpawnChance: 0.4
+  freeAreaFoesSpawnChance: 0.005
   minStreetAreaToSpawnFoes: 10
   minStreetFoes: 0
   maxStreetFoes: 2
   minOpenBuildingAreaToSpawnFoes: 10
-  minOpenBuildingFoes: 1
-  maxOpenBuildingFoes: 2
+  minOpenBuildingFoes: 0
+  maxOpenBuildingFoes: 3
   itemSpawnChance: 0.8
   minOpenBuildingItem: 1
   maxOpenBuildingItem: 3
-  forceSpawnScrapWhenHasNotSpawnSince: 5
+  forceSpawnScrapWhenHasNotSpawnSince: 3
   tilesReferences: {fileID: 11400000, guid: d10845cb6474bfb48a96ab1bc54c60e8, type: 2}

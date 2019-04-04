@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    [SerializeField] public Items items;
+    [SerializeField] public ItemsData itemsData;
 
     private PlayerInventory playerInventory;
 
@@ -18,13 +18,13 @@ public class Item : MonoBehaviour
     {
         if (col.tag == "Player")
         {
-            switch (items.type)
+            switch (itemsData.type)
             {
-                case Items.itemType.FOOD:
-                    playerInventory.AddFood(items.amount);
+                case ItemsData.itemType.FOOD:
+                    playerInventory.AddFood(itemsData.amount);
                     break;
                 default:
-                    playerInventory.AddScrap(items.amount);
+                    playerInventory.AddScrap(itemsData.amount);
                     break;
             }
 

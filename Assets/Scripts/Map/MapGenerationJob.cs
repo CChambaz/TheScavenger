@@ -52,10 +52,16 @@ public struct MapGenerationJob : IJob
     public int maxOpenBuildingItem;
     public int minOpenBuildingAreaToSpawnFoes;
     public int minStreetAreaToSpawnFoes;
-    public float foesSpawnChance;
+    public float obFoesSpawnChance;
+    public float freeAreaFoesSpawnChance;
     public float itemSpawnChance;
+    public int forceSpawnScrapWhenHasNotSpawnSince;
+    public int forceOBSpawnAfter;
 
     public Random random;
+
+    private int itemNotSpawnSince;
+    private int obNotSpawnSince;
     
     // Start is called before the first frame update
     public void Execute()
@@ -70,6 +76,8 @@ public struct MapGenerationJob : IJob
         
         // Generate the map areas
         mapAreas = DividMap();
+
+        obNotSpawnSince = 0;
         
         // Generate the buildings in all the areas
         for (int i = 0; i < mapAreas.Count; i++)
@@ -79,7 +87,7 @@ public struct MapGenerationJob : IJob
         CreatePlayerSpawn(mapSizeX / 2, mapSizeY / 2, spawnAreaSizeX + (mapSizeX / 2), spawnAreaSizeY + (mapSizeY / 2));
 
         // Fill the map with items and foes
-        for (int i = 0; i < mapAreas.Count; i += 4)
+        for (int i = 0; i < mapAreas.Count; i++)
             result = FillMap(result, mapAreas[i]);
     }
     
@@ -93,6 +101,7 @@ public struct MapGenerationJob : IJob
                 if (result[x + (y * mapSizeX)] == 1)
                 {
                     result[x + (y * mapSizeX)] = 7;
+                    return;
                 }
             }
         }
@@ -170,66 +179,79 @@ public List<int[]> DividMap()
 
                 int buildingSizeX = 0;
                 int buildingSizeY = 0;
-
-                // Define the size of the building
-                if (rnd <= cbSpawnChance)
+                
+                // Create the building in the array
+                if (rnd <= cbSpawnChance && obNotSpawnSince < forceOBSpawnAfter)
                 {
                     buildingSizeX = random.NextInt(cbMinSizeX, cbMaxSizeX);
                     buildingSizeY = random.NextInt(cbMinSizeX, cbMaxSizeX);
-                }
-                else if (rnd <= obSpawnChance)
-                {
-                    buildingSizeX = random.NextInt(obMinSizeX, obMaxSizeX);
-                    buildingSizeY = random.NextInt(obMinSizeX, obMaxSizeX);
-                }
-                else
-                    continue;
+                    
+                    // Check if the size of the building is not outside of the map
+                    if (y + buildingSizeY > mapSizeY)
+                        buildingSizeY = mapSizeY - y;
 
-                // Check if the size of the building is not outside of the map
-                if (y + buildingSizeY > mapSizeY)
-                    buildingSizeY = mapSizeY - y;
+                    if (x + buildingSizeX > mapSizeX)
+                        buildingSizeX = mapSizeX - x;
 
-                if (x + buildingSizeX > mapSizeX)
-                    buildingSizeX = mapSizeX - x;
+                    // Check if the building can be contained in the area
+                    if (y + buildingSizeY > endIndexY)
+                        buildingSizeY = endIndexY - y;
 
-                // Check if the building can be contained in the area
-                if (y + buildingSizeY > endIndexY)
-                    buildingSizeY = endIndexY - y;
-
-                if (x + buildingSizeX > endIndexX)
-                    buildingSizeX = endIndexX - x;
-                
-                // Check if the building can be built here
-                if (!CheckBuildingPosition(cells, minEmptyCellsBetweenBuilding, x, y, buildingSizeX))
-                    continue;
-
-                // Create the building in the array
-                if (rnd <= cbSpawnChance)
-                {
+                    if (x + buildingSizeX > endIndexX)
+                        buildingSizeX = endIndexX - x;
+                    
                     // Check if the building size is still above the minimum
                     if (buildingSizeY < cbMinSizeY || buildingSizeX < cbMinSizeX)
                         continue;
                     
+                    // Check if the building can be built here
+                    if (!CheckBuildingPosition(cells, minEmptyCellsBetweenBuilding, x, y, buildingSizeX))
+                        continue;
+                    
                     cells = SetCellsAsClosedBuilding(cells, x, y, buildingSizeX, buildingSizeY);
 
+                    obNotSpawnSince++;
+                    
                     // Push to the last cell of the building
                     x += buildingSizeX;
                 }
-                else if (rnd <= obSpawnChance)
+                else if (rnd <= obSpawnChance || obNotSpawnSince >= forceOBSpawnAfter)
                 {
+                    buildingSizeX = random.NextInt(obMinSizeX, obMaxSizeX);
+                    buildingSizeY = random.NextInt(obMinSizeX, obMaxSizeX);
+                    
+                    // Check if the size of the building is not outside of the map
+                    if (y + buildingSizeY > mapSizeY)
+                        buildingSizeY = mapSizeY - y;
+
+                    if (x + buildingSizeX > mapSizeX)
+                        buildingSizeX = mapSizeX - x;
+
+                    // Check if the building can be contained in the area
+                    if (y + buildingSizeY > endIndexY)
+                        buildingSizeY = endIndexY - y;
+
+                    if (x + buildingSizeX > endIndexX)
+                        buildingSizeX = endIndexX - x;
+                    
                     // Check if the building size is still above the minimum
                     if (buildingSizeY < obMinSizeY || buildingSizeX < obMinSizeX)
                         continue;
                     
+                    // Check if the building can be built here
+                    if (!CheckBuildingPosition(cells, minEmptyCellsBetweenBuilding, x, y, buildingSizeX))
+                        continue;
+                    
                     cells = SetCellsAsOpenBuilding(cells, x, y, buildingSizeX, buildingSizeY);
 
+                    obNotSpawnSince = 0;
+                    
                     // Push to the last cell of the building
                     x += buildingSizeX;
                 }
             }
         }
 
-        //return cells;
         return cells;
     }
 
@@ -421,17 +443,30 @@ public List<int[]> DividMap()
 #region Filling map
     public NativeArray<int> FillMap(NativeArray<int> cells, int[] area)
     {
+        itemNotSpawnSince = 0;
+        
         List<int[]> visitedCellsID = new List<int[]>();
+
+        bool cellHasAlreadyBeenVisited = false;
         
         for (int y = area[1]; y < area[3]; y++)
         {
             for (int x = area[0]; x < area[2]; x++)
             {
                 int[] currentCellID = {x, y};
-                // Check if this node has already been visited
-                if (visitedCellsID.Contains(currentCellID))
-                    continue;
                 
+                foreach (int[] cellID in visitedCellsID)
+                {
+                    if (cellID[0] == currentCellID[0] && cellID[1] == currentCellID[1])
+                        cellHasAlreadyBeenVisited = true;
+                }
+
+                if (cellHasAlreadyBeenVisited)
+                {
+                    cellHasAlreadyBeenVisited = false;
+                    continue;
+                }
+
                 if (cells[x + (y * mapSizeX)] == 3)
                 {
                     // Check if this building has already been visited
@@ -465,10 +500,10 @@ public List<int[]> DividMap()
 
                 if (cells[x + (y * mapSizeX)] == 1)
                 {
+                    int[] currentFreeAreaSize = GetFreeAreaSize(cells, area, x, y);
+                    
                     cells = SpawnFoesOnStreet(cells, area, x, y);
                     
-                    int[] currentFreeAreaSize = GetFreeAreaSize(cells, area, x, y);
-
                     for (int i = x; i < x + currentFreeAreaSize[0]; i++)
                     {
                         int[] cellID = {x, 0};
@@ -492,18 +527,24 @@ public List<int[]> DividMap()
         int[] buildingGatePosition = GetOpenBuildingGatePosition(cells, indexX, indexY, indexX + buildingSize[0], indexY + buildingSize[1]);
 
         int foesToSpawn = random.NextInt(minOpenBuildingFoes, maxOpenBuildingFoes);
-        int itemToSpawn = random.NextInt(minOpenBuildingFoes, maxOpenBuildingFoes);
+        int itemToSpawn = random.NextInt(minOpenBuildingItem, maxOpenBuildingItem);
 
-        float rnd = random.NextFloat(0f, 1f);
+        float rnd = random.NextFloat(0.0f, 1.0f);
 
         // Define if there is enough place to spawn foes
-        if ((buildingSize[0] - 2) * (buildingSize[1] - 2) > minOpenBuildingAreaToSpawnFoes || rnd > foesSpawnChance)
-            foesToSpawn = 0;
+        /*if ((buildingSize[0] - 2) * (buildingSize[1] - 2) < minOpenBuildingAreaToSpawnFoes || rnd > obFoesSpawnChance)
+            foesToSpawn = 0;*/
 
-        if (rnd > itemSpawnChance)
+        if (itemNotSpawnSince < forceSpawnScrapWhenHasNotSpawnSince && rnd > itemSpawnChance)
+        {
             itemToSpawn = 0;
-
-        int itemSpawnedCount = 0;
+            itemNotSpawnSince++;
+        }
+        else
+            itemNotSpawnSince = 0;
+        
+        if (((buildingSize[0] - 2) * (buildingSize[1] - 2) < minOpenBuildingAreaToSpawnFoes || rnd > obFoesSpawnChance) && itemToSpawn > 0)
+            foesToSpawn = 0;
 
         // Check the gate position and spawn items containers on the opposite side
         // Gate on top
@@ -511,11 +552,11 @@ public List<int[]> DividMap()
         {
             for (int i = indexX + 1; i < indexX + buildingSize[0] - 1; i++)
             {
-                if (itemSpawnedCount < itemToSpawn)
-                {
-                    cells[i + (indexY + 1) * mapSizeX] = 5;
-                    itemSpawnedCount++;
-                }
+                if (itemToSpawn <= 0)
+                    break;
+                
+                cells[i + (indexY + 1) * mapSizeX] = 5;
+                itemToSpawn--;
             }
         }
         // Gate on right
@@ -523,11 +564,11 @@ public List<int[]> DividMap()
         {
             for (int i = indexY + 1; i < indexY + buildingSize[1] - 1; i++)
             {
-                if (itemSpawnedCount < itemToSpawn)
-                {
-                    cells[indexX + 1 + (i * mapSizeX)] = 5;
-                    itemSpawnedCount++;
-                }
+                if (itemToSpawn <= 0)
+                    break;
+                
+                cells[indexX + 1 + (i * mapSizeX)] = 5;
+                itemToSpawn--;
             }
         }
         // Gate on left
@@ -535,11 +576,11 @@ public List<int[]> DividMap()
         {
             for (int i = indexY + 1; i < indexY + buildingSize[1] - 1; i++)
             {
-                if (itemSpawnedCount < itemToSpawn)
-                {
-                    cells[indexX + buildingSize[0] - 2 + (i * mapSizeX)] = 5;
-                    itemSpawnedCount++;
-                }
+                if (itemToSpawn <= 0)
+                    break;
+                
+                cells[indexX + buildingSize[0] - 2 + (i * mapSizeX)] = 5;
+                itemToSpawn--;
             }
         }
         // Gate on bottom
@@ -547,11 +588,11 @@ public List<int[]> DividMap()
         {
             for (int i = indexX + 1; i < indexX + buildingSize[1] - 1; i++)
             {
-                if (itemSpawnedCount < itemToSpawn)
-                {
-                    cells[i + (indexY + buildingSize[1] - 2) * mapSizeX] = 5;
-                    itemSpawnedCount++;
-                }
+                if (itemToSpawn <= 0)
+                    break;
+                
+                cells[i + (indexY + buildingSize[1] - 2) * mapSizeX] = 5;
+                itemToSpawn--;
             }
         }
 
@@ -579,9 +620,9 @@ public List<int[]> DividMap()
         
         int foesToSpawn = random.NextInt(minStreetFoes, maxStreetFoes);
 
-        float rnd = random.NextFloat(0f, 1f);
+        float rnd = random.NextFloat(0.0f, 1.0f);
 
-        if (freeAreaSize[0] * freeAreaSize[1] > minStreetAreaToSpawnFoes && rnd > foesSpawnChance)
+        if (freeAreaSize[0] * freeAreaSize[1] < minStreetAreaToSpawnFoes || rnd > freeAreaFoesSpawnChance)
             foesToSpawn = 0;
 
         for (int y = indexY; y < indexY + freeAreaSize[1]; y++)
@@ -709,7 +750,9 @@ public List<int[]> DividMap()
                 for (int x = indexX; x < indexX + freeAreaSize[0]; x++)
                 {
                     if (cells[x + (indexY + iterator) * mapSizeX] != 1)
+                    {
                         stillInFreeArea = false;
+                    }
                 }
 
                 if (!stillInFreeArea)

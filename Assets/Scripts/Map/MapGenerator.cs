@@ -69,8 +69,11 @@ public class MapGenerator
         mapGenerationJob.maxOpenBuildingItem = parameters.maxOpenBuildingItem;
         mapGenerationJob.minOpenBuildingAreaToSpawnFoes = parameters.minOpenBuildingAreaToSpawnFoes;
         mapGenerationJob.minStreetAreaToSpawnFoes = parameters.minStreetAreaToSpawnFoes;
-        mapGenerationJob.foesSpawnChance = parameters.foesSpawnChance;
+        mapGenerationJob.obFoesSpawnChance = parameters.obFoesSpawnChance;
+        mapGenerationJob.freeAreaFoesSpawnChance = parameters.freeAreaFoesSpawnChance;
         mapGenerationJob.itemSpawnChance = parameters.itemSpawnChance;
+        mapGenerationJob.forceSpawnScrapWhenHasNotSpawnSince = parameters.forceSpawnScrapWhenHasNotSpawnSince;
+        mapGenerationJob.forceOBSpawnAfter = parameters.forceOBSpawnAfter;
     }
 
     public void TranslateNativeArrayToCellBiArray()

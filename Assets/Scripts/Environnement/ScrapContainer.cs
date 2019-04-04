@@ -36,7 +36,12 @@ public class ScrapContainer : MonoBehaviour
 
         if(FindObjectOfType<PlayerController>() != null)
             playerDamage = FindObjectOfType<PlayerController>().attackDamage;
+        
+        SetLootAmount();
+    }
 
+    public void SetLootAmount()
+    {
         // Define wheter the container will instantiate scrap when destroy or not
         float rnd = Random.Range(0f, 1f);
 
@@ -60,11 +65,7 @@ public class ScrapContainer : MonoBehaviour
                 Instantiate(scrapBigPrefab, transform.position, Quaternion.identity);
         }
         
-        // TODO: Find a way to not destroy it or to update all the nodes and cell
-        // Set the node on which the container was as walkable
-        /*gameManager.grid.nodes[nodeID.x, nodeID.y].movementCost = 1f;
-        
-        Destroy(gameObject);*/
+        Destroy(gameObject);
     }
 
     void OnTriggerEnter2D(Collider2D col)

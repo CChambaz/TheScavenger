@@ -19,6 +19,19 @@ public class FoeController : MonoBehaviour
     
     [SerializeField] private CircleCollider2D hitBox;
     
+    [Header("Food prefab reference")]
+    [SerializeField] private GameObject foodSmallPrefab;
+    [SerializeField] private GameObject foodMediumPrefab;
+    [SerializeField] private GameObject foodBigPrefab;
+    
+    [Header("Item spawn parameters")]
+    [SerializeField] private int minFoodSpawn;
+    [SerializeField] private int maxFoodSpawn;
+    [Range(0f, 1f)] [SerializeField] private float lootSpawnChance;
+    [Range(0f, 1f)] [SerializeField] private float foodSmallSpawnChance;
+    [Range(0f, 1f)] [SerializeField] private float foodMediumSpawnChance;
+    [Range(0f, 1f)] [SerializeField] private float foodBigSpawnChance;
+    
     private enum Type
     {
         CQB,
@@ -52,6 +65,8 @@ public class FoeController : MonoBehaviour
     private float lastPathGetAt = 0;
 
     private PathFindingManager pathFindingManager;
+
+    private int itemToSpawn;
     
     private void Awake()
     {
@@ -72,6 +87,8 @@ public class FoeController : MonoBehaviour
         attackRange = attackSpeed * attackDuration * Time.fixedDeltaTime;
 
         life = maxLife;
+        
+        SetLootAmount();
     }
 
     // Update is called once per frame
@@ -123,9 +140,14 @@ public class FoeController : MonoBehaviour
 
     private void UpdateState()
     {
+        // Check if at detection range
         if ((playerTransform.position - transform.position).magnitude <= detectionRange)
         {
-            state = State.POSITIONING;
+            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
+        
+            // Check if the foe can see the player
+            if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
+                state = State.POSITIONING;
         }
     }
 
@@ -148,6 +170,7 @@ public class FoeController : MonoBehaviour
         // Check if the foe has a direct line of view to the player
         if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
         {
+            path = null;
             moveToTarget();
         } 
         else if (path != null && path.Count > 0)
@@ -157,6 +180,8 @@ public class FoeController : MonoBehaviour
         }
         else
         {
+            path = null;
+            
             // Get path to the player
             pathFindingManager.RegisterToQueue(this);
             
@@ -248,6 +273,7 @@ public class FoeController : MonoBehaviour
         collider.isTrigger = true;
         rigid.velocity = Vector2.zero;
         state = State.DEAD;
+        SpawnItems();
     }
     
     private void OnTriggerEnter2D(Collider2D other)
@@ -265,6 +291,33 @@ public class FoeController : MonoBehaviour
         }
     }
 
+    void SpawnItems()
+    {
+        for (int i = 0; i < itemToSpawn; i++)
+        {
+            Debug.Log("Foes has spawned items !");
+            float rnd = Random.Range(0f, 1f);
+
+            if (rnd <= foodSmallSpawnChance)
+                Instantiate(foodSmallPrefab, transform.position, Quaternion.identity);
+            else if (rnd <= foodMediumSpawnChance)
+                Instantiate(foodMediumPrefab, transform.position, Quaternion.identity);
+            else if (rnd <= foodBigSpawnChance)
+                Instantiate(foodBigPrefab, transform.position, Quaternion.identity);
+        }
+    }
+    
+    public void SetLootAmount()
+    {
+        // Define wheter the container will instantiate scrap when destroy or not
+        float rnd = Random.Range(0f, 1f);
+
+        if (rnd <= lootSpawnChance)
+        {
+            itemToSpawn = Random.Range(minFoodSpawn, maxFoodSpawn);
+        }
+    }
+    
     private void OnDrawGizmos()
     {
         if (false && path != null)
