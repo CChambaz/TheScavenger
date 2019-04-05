@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
     [Header("Parameters")] 
     [SerializeField] public MapParameters parameters;
 
+    [Header("Level parameters")] 
+    [SerializeField] public float dayDuration;
+    
     public uint seed;
 
     public uint levelNumber = 0;
@@ -37,7 +40,8 @@ public class GameManager : MonoBehaviour
     public enum GameState
     {
         MAINMENU,
-        INGAME,
+        INGAMEDAY,
+        INGAMENIGHT,
         INTERLEVEL,
         PAUSE,
         DEATH,
@@ -53,8 +57,9 @@ public class GameManager : MonoBehaviour
     public GameState gameState = GameState.MAINMENU;
     GameState previousGameState = GameState.NONE;
     public Grid grid;
-    //public AStarPathfinding pathfinder;
 
+    public float actualDayDuration;
+    
     private void Awake()
     {
         player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
@@ -68,7 +73,6 @@ public class GameManager : MonoBehaviour
         
         mapGenerator = new MapGenerator(parameters, mapDrawer, seed);
         grid = new Grid(parameters, mapGenerator);
-        //pathfinder = new AStarPathfinding(parameters);
         
         // Instantiate base objects
         playerSpawn = Instantiate(playerSpawnPrefab, Vector3.zero, Quaternion.identity).GetComponent<PlayerSpawn>();
@@ -78,10 +82,6 @@ public class GameManager : MonoBehaviour
         grid.PrepareGridUpdateJob();
         mapDrawer.DrawMapBorder();
         grid.CreateGrid();
-        
-        
-        
-        //GenerateMap();
     }
 
     public IEnumerator GenerateMap()
@@ -130,21 +130,29 @@ public class GameManager : MonoBehaviour
         // Draw the map
         mapDrawer.DrawMap(mapGenerator.cells);
         
-        // Start the level
-        gameState = GameState.INGAME;
-
-        // Spawn the player
-        playerSpawn.SpawnPlayer();
-
         // Prepare the level number for the next generation
         levelNumber++;
 
         generationInProgress = false;
+        
+        // Spawn the player
+        playerSpawn.SpawnPlayer();
+
+        actualDayDuration = 0;
+        
+        // Start the level
+        gameState = GameState.INGAMEDAY;
     }
     
     // Update is called once per frame
     void Update()
     {
+        if (gameState == GameState.INGAMEDAY)
+            actualDayDuration += Time.deltaTime;
+
+        if (actualDayDuration >= dayDuration && gameState == GameState.INGAMEDAY)
+            gameState = GameState.INGAMENIGHT;
+        
         if (previousGameState != gameState)
             ApplyChangeState();
     }

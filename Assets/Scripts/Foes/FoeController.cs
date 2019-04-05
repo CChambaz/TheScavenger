@@ -94,7 +94,7 @@ public class FoeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameManager.gameState == GameManager.GameState.INGAME)
+        if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
         {
             switch (state)
             {
@@ -118,7 +118,7 @@ public class FoeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (gameManager.gameState == GameManager.GameState.INGAME)
+        if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
         {
             switch (state)
             {
@@ -295,7 +295,6 @@ public class FoeController : MonoBehaviour
     {
         for (int i = 0; i < itemToSpawn; i++)
         {
-            Debug.Log("Foes has spawned items !");
             float rnd = Random.Range(0f, 1f);
 
             if (rnd <= foodSmallSpawnChance)

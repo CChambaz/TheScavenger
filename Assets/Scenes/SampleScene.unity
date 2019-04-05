@@ -2869,6 +2869,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1258205763557482105, guid: df543270d3fb6464a8446c0528cce65d,
     type: 3}
   parameters: {fileID: 11400000, guid: 6579da96c94dc2044a4684ca7c5fa6d8, type: 2}
+  dayDuration: 600
   seed: 0
   levelNumber: 0
   generationInProgress: 0

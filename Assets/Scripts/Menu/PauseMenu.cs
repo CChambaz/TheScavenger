@@ -16,13 +16,14 @@ public class PauseMenu : MonoBehaviour
     {
         if(Input.GetKeyUp(KeyCode.Escape))
         {
+            Debug.Log("Try to pause");
             if (gameManager.gameState == GameManager.GameState.PAUSE)
             {
-                gameManager.gameState = GameManager.GameState.INGAME;
+                gameManager.gameState = GameManager.GameState.INGAMEDAY;
                 return;
             }
 
-            if (gameManager.gameState == GameManager.GameState.INGAME)
+            if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
                 gameManager.gameState = GameManager.GameState.PAUSE;
         }
     }
@@ -34,6 +35,6 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
-        gameManager.gameState = GameManager.GameState.INGAME;
+        gameManager.gameState = GameManager.GameState.INGAMEDAY;
     }
 }

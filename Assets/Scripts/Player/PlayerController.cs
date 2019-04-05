@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Check if the game is running
-        if (gameManager.gameState != GameManager.GameState.INGAME || state == PlayerState.DEAD)
+        if ((gameManager.gameState != GameManager.GameState.INGAMEDAY && gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
             return;
         
         // Check if the user launched an attack

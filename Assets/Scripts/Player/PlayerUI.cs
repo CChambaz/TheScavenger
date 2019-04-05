@@ -6,20 +6,30 @@ using UnityEngine.UI;
 
 public class PlayerUI : MonoBehaviour
 {
-    [Header("UI Components")]
+    [Header("HUD Components")]
     [SerializeField] private Canvas uiCanvas;
     [SerializeField] Image imgHealth;
     [SerializeField] Image imgShield;
     [SerializeField] private TextMeshProUGUI scrapText;
     [SerializeField] private TextMeshProUGUI foodText;
 
-    [Header("Other attributs")]
+    [Header("Compass components")] 
+    [SerializeField] private Transform compassPivotPoint;
+    [SerializeField] private float compassOffset;
+
+    [Header("Time left component")] 
+    [SerializeField] private TextMeshProUGUI timeLeftText;
+    [SerializeField] private GameObject timeLeftContainer;
+    
+    [Header("Fade attributs")]
     [SerializeField] float fadeDuration;
     [SerializeField] float fillSpeed;
 
-    GameObject player;
+    Transform playerTransform;
+    private Transform manholeTransform;
     PlayerLife playerStats;
     private PlayerInventory playerInventory;
+    private GameManager gameManager;
 
     int previousLife = 0;
     private int previousScrap = 0;
@@ -31,6 +41,9 @@ public class PlayerUI : MonoBehaviour
     {
         playerStats = GetComponent<PlayerLife>();
         playerInventory = GetComponent<PlayerInventory>();
+        playerTransform = GetComponent<Transform>();
+        manholeTransform = FindObjectOfType<PlayerSpawn>().GetComponent<Transform>();
+        gameManager = FindObjectOfType<GameManager>();
         uiCanvas.worldCamera = Camera.main;
     }
 
@@ -48,6 +61,11 @@ public class PlayerUI : MonoBehaviour
 
         if (previousFood != playerInventory.food)
             UpdateFood();
+        
+        if(gameManager.gameState == GameManager.GameState.INGAMEDAY || timeLeftContainer.activeSelf)
+            UpdateTimeLeft();
+        
+        UpdateCompass();
     }
 
     void UpdateLife()
@@ -84,6 +102,23 @@ public class PlayerUI : MonoBehaviour
         previousFood = playerInventory.food;
     }
 
+    void UpdateCompass()
+    {
+        Vector2 playerToManhole = (manholeTransform.position - playerTransform.position);
+
+        compassPivotPoint.transform.rotation = Quaternion.Euler(0, 0, (Mathf.Atan2(playerToManhole.y, playerToManhole.x) * Mathf.Rad2Deg) + compassOffset);
+    }
+
+    void UpdateTimeLeft()
+    {
+        timeLeftText.text = ((int) (gameManager.dayDuration - gameManager.actualDayDuration)).ToString();
+        
+        if(gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+            timeLeftContainer.SetActive(false);
+        else
+            timeLeftContainer.SetActive(true);
+    }
+    
     IEnumerator Fill(Image imageToFill, float fillGoal)
     {
         while (imageToFill.fillAmount != fillGoal)

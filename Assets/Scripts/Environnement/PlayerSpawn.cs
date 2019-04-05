@@ -27,7 +27,10 @@ public class PlayerSpawn : MonoBehaviour
     private void Update()
     {
         if (isPlayerOnSpawn && Input.GetKey(KeyCode.E))
+        {
+            Debug.Log("Try to end level");
             EndLevel();
+        }
     }
 
     public void SpawnPlayer()
