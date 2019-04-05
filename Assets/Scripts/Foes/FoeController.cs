@@ -14,6 +14,8 @@ public class FoeController : MonoBehaviour
     
     [SerializeField] private float attackDuration;
     [SerializeField] public int attackDamage;
+
+    [SerializeField] private float hittedDuration;
     
     [SerializeField] public float getPathCD;
     
@@ -45,6 +47,7 @@ public class FoeController : MonoBehaviour
         POSITIONING,
         ATTACK,
         FLEE,
+        HITTED,
         DEAD
     }
 
@@ -67,6 +70,7 @@ public class FoeController : MonoBehaviour
     private PathFindingManager pathFindingManager;
 
     private int itemToSpawn;
+    private float hittedAt;
     
     private void Awake()
     {
@@ -110,6 +114,10 @@ public class FoeController : MonoBehaviour
                     break;
                 case State.FLEE:
                     break;
+                case State.HITTED:
+                    if (Time.time > hittedAt + hittedDuration)
+                        state = State.IDLE;
+                    break;
                 case State.DEAD:
                     break;
             }
@@ -131,6 +139,9 @@ public class FoeController : MonoBehaviour
                     GoAtRange();
                     break;
                 case State.FLEE:
+                    break;
+                case State.HITTED:
+                    // TODO: Apply push while hitted
                     break;
                 case State.DEAD:
                     break;
@@ -286,8 +297,13 @@ public class FoeController : MonoBehaviour
                 life -= playerTransform.GetComponent<PlayerController>().attackDamage;
 
                 if (life <= 0)
+                {
                     Die();
+                    return;
+                }
 
+                hittedAt = Time.time;
+                state = State.HITTED;
             }
         }
     }
