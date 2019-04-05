@@ -10,6 +10,7 @@ public class PlayerSpawn : MonoBehaviour
 
     private GameManager gameManager;
     private Animator animController;
+    private InterLevelMenu interLevelMenu;
 
     private bool isPlayerOnSpawn = false;
 
@@ -22,6 +23,7 @@ public class PlayerSpawn : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         playerTransform = gameManager.GetPlayerTranform();
+        interLevelMenu = FindObjectOfType<InterLevelMenu>();
     }
 
     private void Update()
@@ -40,7 +42,7 @@ public class PlayerSpawn : MonoBehaviour
 
     void EndLevel()
     {
-        gameManager.gameState = GameManager.GameState.INTERLEVEL;
+        interLevelMenu.ApplyEndLevelRequirement();
     }
     
     private void OnTriggerEnter2D(Collider2D other)

@@ -264,6 +264,7 @@ public class FoeController : MonoBehaviour
         if(attackCoroutine != null)
             StopCoroutine(attackCoroutine);
         
+        hitBox.tag = "Foe";
         animator.SetBool("isMoving", false);
         animator.SetBool("isPreparingAttack", false);
         animator.SetBool("isAttacking", false);

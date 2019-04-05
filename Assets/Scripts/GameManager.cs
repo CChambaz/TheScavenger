@@ -205,11 +205,6 @@ public class GameManager : MonoBehaviour
         return player.GetComponent<Transform>();
     }
     
-    /*public List<Vector3> GetPathTo(Vector2 startPosition, Vector2 targetPosition)
-    {
-        return pathfinder.GetPathTo(grid, startPosition, targetPosition);
-    }*/
-    
     IEnumerator Fade(CanvasGroup canvasGroup, float fadeGoal)
     {
         while (canvasGroup.alpha != fadeGoal)

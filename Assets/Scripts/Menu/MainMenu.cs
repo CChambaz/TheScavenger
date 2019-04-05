@@ -12,12 +12,10 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button startButton;
     
     private GameManager gameManager;
-    private MapDrawer mapDrawer;
 
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        mapDrawer = FindObjectOfType<MapDrawer>();
     }
 
     void Update()

@@ -30,11 +30,12 @@ public class PlayerUI : MonoBehaviour
     PlayerLife playerStats;
     private PlayerInventory playerInventory;
     private GameManager gameManager;
+    private InterLevelMenu interLevelMenu;
 
-    int previousLife = 0;
-    private int previousScrap = 0;
-    private int previousFood = 0;
-    int previousShield = 0;
+    int previousLife = -1;
+    private int previousScrap = -1;
+    private int previousFood = -1;
+    int previousShield = -1;
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +45,7 @@ public class PlayerUI : MonoBehaviour
         playerTransform = GetComponent<Transform>();
         manholeTransform = FindObjectOfType<PlayerSpawn>().GetComponent<Transform>();
         gameManager = FindObjectOfType<GameManager>();
+        interLevelMenu = FindObjectOfType<InterLevelMenu>();
         uiCanvas.worldCamera = Camera.main;
     }
 
@@ -97,7 +99,7 @@ public class PlayerUI : MonoBehaviour
 
     void UpdateFood()
     {
-        foodText.text = playerInventory.food.ToString();
+        foodText.text = playerInventory.food.ToString() + "/" + interLevelMenu.foodRequirement;
 
         previousFood = playerInventory.food;
     }

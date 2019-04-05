@@ -1,18 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class InterLevelMenu : MonoBehaviour
 {
+    [Header("Player inventory components")] 
+    [SerializeField] private TextMeshProUGUI playerScrapAmount;
+    [SerializeField] private TextMeshProUGUI playerFoodAmount;
+    
+    [Header("Player stats components")]
+    [SerializeField] private TextMeshProUGUI playerArmorAmount;
+    [SerializeField] private TextMeshProUGUI playerLifeAmount;
+
     [Header("Inter-Level components")]
-    [SerializeField] Image increaseLife;
-    [SerializeField] Image increaseArmor;
     [SerializeField] private Button nextLevelButton;
     [SerializeField] private Text textLife;
+    [SerializeField] private TextMeshProUGUI textLifeCost;
     [SerializeField] private Text textArmor;
+    [SerializeField] private TextMeshProUGUI textArmorCost;
     [SerializeField] private Text textNextLevel;
 
+    [Header("End level constraints")] 
+    [SerializeField] public int foodRequirement;
+    
     [Header("Cost values")]
     [SerializeField] int addArmorCost;
     [SerializeField] int addLifeCost;
@@ -24,14 +36,14 @@ public class InterLevelMenu : MonoBehaviour
     PlayerLife playerLife;
     PlayerInventory playerInventory;
     private GameManager gameManager;
-    private MapDrawer mapDrawer;
+
+    private bool hasAppliedRequirement = false;
 
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
         playerLife = FindObjectOfType<PlayerLife>();
         playerInventory = FindObjectOfType<PlayerInventory>();
-        mapDrawer = FindObjectOfType<MapDrawer>();
     }
 
     void Update()
@@ -64,6 +76,15 @@ public class InterLevelMenu : MonoBehaviour
                 textLife.text = "Increase life";
             else
                 textLife.text = "Heal";
+
+            textArmorCost.text = "Scrap cost : " + addArmorCost;
+            textLifeCost.text = "Food cost : " + addLifeCost;
+            
+            playerArmorAmount.text = playerLife.activeArmor + "/" + playerLife.maxArmor;
+            playerLifeAmount.text = playerLife.activeLife + "/" + playerLife.maxLife;
+
+            playerScrapAmount.text = playerInventory.scrap.ToString();
+            playerFoodAmount.text = playerInventory.food.ToString();
         }
     }
 
@@ -97,8 +118,38 @@ public class InterLevelMenu : MonoBehaviour
         }
     }
 
+    public void ApplyEndLevelRequirement()
+    {
+        // Check if the requirement has aleady been applied
+        if (hasAppliedRequirement)
+            return;
+        
+        // Check if the player has not enough food
+        if (playerInventory.food < foodRequirement)
+        {
+            playerLife.activeLife -= (foodRequirement - playerInventory.food);
+            playerInventory.food = 0;
+            
+            // Check if the player is still alive
+            if (playerLife.activeLife <= 0)
+            {
+                gameManager.gameState = GameManager.GameState.DEATH;
+                return;
+            }
+        }
+        else
+        {
+            playerInventory.food -= foodRequirement;
+        }
+
+        hasAppliedRequirement = true;
+        
+        gameManager.gameState = GameManager.GameState.INTERLEVEL;
+    }
+    
     public void NextLevel()
     {
+        hasAppliedRequirement = false;
         StartCoroutine(gameManager.GenerateMap());
     }
 }
