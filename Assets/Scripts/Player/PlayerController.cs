@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] BoxCollider2D attackUpCollider;
     [SerializeField] BoxCollider2D attackDownCollider;
 
-    [SerializeField] private float invicibilityTimeAfterHit;
+    [SerializeField] private float invicibilityTimeAfterHit;// TODO: Rename to link with hitted state
     
     int movementUp;
     int movementDown;
@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
         WALKING,
         ATTACKING,
         DASHING,
+        HITTED,
         DEAD
     }
 
@@ -86,7 +87,10 @@ public class PlayerController : MonoBehaviour
         // Check if the game is running
         if ((gameManager.gameState != GameManager.GameState.INGAMEDAY && gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
             return;
-        
+
+        if (state == PlayerState.HITTED && Time.time < lastHitAt + invicibilityTimeAfterHit)
+            return;
+            
         // Check if the user launched an attack
         if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.ATTACKING && Time.time > lastAttackAt + attackCoolDown)
             StartAttack();
@@ -312,7 +316,7 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (Time.time > lastHitAt + invicibilityTimeAfterHit && other.tag == "FoeAttack")
+        if (state != PlayerState.HITTED && other.tag == "FoeAttack")
         {
             lastHitAt = Time.time;
             if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
