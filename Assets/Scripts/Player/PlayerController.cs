@@ -66,17 +66,23 @@ public class PlayerController : MonoBehaviour
     
     private float lastHitAt;
     private PlayerLife life;
-    
+    private PlayerInventory inventory;
+
+    private void Awake()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+        life = GetComponent<PlayerLife>();
+        inventory = GetComponent<PlayerInventory>();
+        rigid = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+    }
+
     private void Start()
     {
         rage = GetComponent<PlayerRage>();
-        gameManager = FindObjectOfType<GameManager>();
-        animator = GetComponent<Animator>();
         renderer = GetComponent<SpriteRenderer>();
-        rigid = GetComponent<Rigidbody2D>();
         actualOrientation = Orientation.HORIZONTAL;
         sound = GetComponent<SoundPlayerManager>();
-        life = GetComponent<PlayerLife>();
 
         Camera.main.GetComponent<CameraManager>().AddPlayer(transform);
     }
@@ -312,6 +318,16 @@ public class PlayerController : MonoBehaviour
     public int GetForceAttack()
     {
         return attackDamage;
+    }
+
+    public void ResetPlayer()
+    {
+        inventory.ResetInventory();
+        life.ResetLife();
+        
+        animator.SetBool("isDead", false);
+        rigid.isKinematic = false;
+        state = PlayerState.IDLE;
     }
     
     private void OnTriggerEnter2D(Collider2D other)

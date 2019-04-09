@@ -82,6 +82,20 @@ public class GameManager : MonoBehaviour
         grid.PrepareGridUpdateJob();
         mapDrawer.DrawMapBorder();
         grid.CreateGrid();
+        player.ResetPlayer();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (gameState == GameState.INGAMEDAY)
+            actualDayDuration += Time.deltaTime;
+
+        if (actualDayDuration >= dayDuration && gameState == GameState.INGAMEDAY)
+            gameState = GameState.INGAMENIGHT;
+        
+        if (previousGameState != gameState)
+            ApplyChangeState();
     }
 
     public IEnumerator GenerateMap()
@@ -144,24 +158,12 @@ public class GameManager : MonoBehaviour
         gameState = GameState.INGAMEDAY;
     }
     
-    // Update is called once per frame
-    void Update()
-    {
-        if (gameState == GameState.INGAMEDAY)
-            actualDayDuration += Time.deltaTime;
-
-        if (actualDayDuration >= dayDuration && gameState == GameState.INGAMEDAY)
-            gameState = GameState.INGAMENIGHT;
-        
-        if (previousGameState != gameState)
-            ApplyChangeState();
-    }
-
     void ApplyChangeState()
     {
         switch (previousGameState)
         {
             case GameState.MAINMENU:
+                ResetGame();
                 StartCoroutine(Fade(mainMenuCanvas, 0));
                 break;
             case GameState.PAUSE:
@@ -172,6 +174,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(Fade(interCanvas, 0));
                 break;
             case GameState.DEATH:
+                ResetGame();
                 StartCoroutine(Fade(mainMenuCanvas, 0));
                 break;
             default:
@@ -200,6 +203,12 @@ public class GameManager : MonoBehaviour
         previousGameState = gameState;
     }
 
+    private void ResetGame()
+    {
+        player.ResetPlayer();
+        levelNumber = 1;
+    }
+    
     public Transform GetPlayerTranform()
     {
         return player.GetComponent<Transform>();

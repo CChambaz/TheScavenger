@@ -19,10 +19,10 @@ public class PlayerLife : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Reset();
+        ResetLife();
     }
 
-    public void Reset()
+    public void ResetLife()
     {
         maxLife = baseLife;
         activeLife = maxLife;

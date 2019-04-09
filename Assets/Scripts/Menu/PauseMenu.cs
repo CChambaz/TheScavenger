@@ -16,7 +16,6 @@ public class PauseMenu : MonoBehaviour
     {
         if(Input.GetKeyUp(KeyCode.Escape))
         {
-            Debug.Log("Try to pause");
             if (gameManager.gameState == GameManager.GameState.PAUSE)
             {
                 gameManager.gameState = GameManager.GameState.INGAMEDAY;
