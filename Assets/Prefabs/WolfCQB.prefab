@@ -168,6 +168,7 @@ MonoBehaviour:
   attackSpeed: 200
   attackDuration: 0.25
   attackDamage: 25
+  hittedDuration: 0
   getPathCD: 10
   hitBox: {fileID: 710652072813558022}
   foodSmallPrefab: {fileID: 7564787723500514629, guid: a66ad5b0baf186443b08763d36271a58,

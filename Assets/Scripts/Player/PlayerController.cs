@@ -45,7 +45,6 @@ public class PlayerController : MonoBehaviour
 
     float lastAttackAt = 0;
 
-    PlayerRage rage;
     private GameManager gameManager;
 
     Animator animator;
@@ -79,7 +78,6 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        rage = GetComponent<PlayerRage>();
         renderer = GetComponent<SpriteRenderer>();
         actualOrientation = Orientation.HORIZONTAL;
         sound = GetComponent<SoundPlayerManager>();
@@ -91,7 +89,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Check if the game is running
-        if ((gameManager.gameState != GameManager.GameState.INGAMEDAY && gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
+        if (!gameManager.gameRunning || state == PlayerState.DEAD)
             return;
 
         if (state == PlayerState.HITTED && Time.time < lastHitAt + invicibilityTimeAfterHit)
@@ -181,7 +179,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
 
-        moveVector *= moveSpeed * rage.activeRageMultiplier * Time.deltaTime;
+        moveVector *= moveSpeed * Time.deltaTime;
         
         if (moveVector == Vector3.zero)
             state = PlayerState.IDLE;
@@ -250,7 +248,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 dashVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
 
-        dashVector *= dashSpeed * rage.activeRageMultiplier * Time.deltaTime;
+        dashVector *= dashSpeed * Time.deltaTime;
         
         rigid.velocity = dashVector;
     }

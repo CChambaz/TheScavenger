@@ -97,10 +97,6 @@ public class Grid
                 // Check if the node exist
                 if (indexX >= 0 && indexX < parameters.mapSizeX - 1 && indexY >= 0 && indexY < parameters.mapSizeY - 1)
                 {
-                    // Check if the node is walkable
-                    /*if (!nodes[indexX, indexY].walkable)
-                        continue;*/
-                    
                     neighbours.Add(nodes[indexX, indexY]);
                 }
             }
@@ -109,7 +105,7 @@ public class Grid
         return neighbours;
     }
     
-    public Vector2Int GetNodeIDFromPosition(Vector2 position)
+    public Vector2Int GetNearestWalkableNode(Vector2 position)
     {
         Vector2Int nullVector = new Vector2Int(-1,-1);
         Vector2Int index = nullVector;

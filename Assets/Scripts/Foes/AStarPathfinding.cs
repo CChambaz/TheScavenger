@@ -18,8 +18,8 @@ public class AStarPathfinding
             return null;
         
         // Get the node IDs of the current position and of the target
-        Vector2Int currentNodeID = grid.GetNodeIDFromPosition(startPosition);
-        Vector2Int targetNodeID = grid.GetNodeIDFromPosition(targetPosition);
+        Vector2Int currentNodeID = grid.GetNearestWalkableNode(startPosition);
+        Vector2Int targetNodeID = grid.GetNearestWalkableNode(targetPosition);
         
         // Get the node of the current position and of the target
         GridNode startingNode = grid.nodes[currentNodeID.x, currentNodeID.y];

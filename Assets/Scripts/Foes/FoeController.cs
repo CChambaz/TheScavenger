@@ -57,7 +57,8 @@ public class FoeController : MonoBehaviour
     private SpriteRenderer renderer;
     public Transform playerTransform;
     public List<Vector3> path = null;
-    private int nextPathPointID = 0;
+    public List<Vector3> patrolPath = null;
+    private int nextPatrolPointID = 0;
     private int life;
     private GameManager gameManager;
     private Animator animator;
@@ -72,6 +73,11 @@ public class FoeController : MonoBehaviour
     private int itemToSpawn;
     private float hittedAt;
     
+    /*
+     * TODO:
+     *     - Change the condition for the walking animation
+     *         -> Base it on the velocity of the rigid
+     */
     private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -92,13 +98,15 @@ public class FoeController : MonoBehaviour
 
         life = maxLife;
         
+        patrolPath = FindObjectOfType<PatrolPathGenerator>().GeneratePatrolPath(transform.position);
+        
         SetLootAmount();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+        if (gameManager.gameRunning)
         {
             switch (state)
             {
@@ -126,13 +134,14 @@ public class FoeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+        if (gameManager.gameRunning)
         {
             switch (state)
             {
                 case State.IDLE:
                     break;
                 case State.PATROL:
+                    moveToNextPatrolPoint();
                     break;
                 case State.POSITIONING:
                     target = playerTransform.position;
@@ -158,7 +167,27 @@ public class FoeController : MonoBehaviour
         
             // Check if the foe can see the player
             if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
+            {
                 state = State.POSITIONING;
+                return;
+            }
+        }
+        
+        // Check if a patrol path has been assigned
+        if (state != State.PATROL && patrolPath != null && patrolPath.Count > 0)
+        {
+            nextPatrolPointID = 0;
+            
+            // Get the nearest patrol point
+            for (int i = 0; i < patrolPath.Count; i++)
+            {
+                if ((patrolPath[i] - transform.position).magnitude <
+                    (patrolPath[nextPatrolPointID] - transform.position).magnitude)
+                    nextPatrolPointID = i;
+            }
+
+            state = State.PATROL;
+            return;
         }
     }
 
@@ -242,13 +271,32 @@ public class FoeController : MonoBehaviour
         
         rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
         renderer.flipX = rigid.velocity.x < 0;
+        
+        animator.SetBool("isMoving", true);
     }
 
     private void moveToNextPatrolPoint()
     {
-        // Set speed to rush strait to the next patrol point
-        //rigid.velocity = nextPatrolPointID - transform.position;
-        rigid.velocity = rigid.velocity.normalized * moveSpeed;
+        Vector3 moveVector = patrolPath[nextPatrolPointID] - transform.position;
+        
+        rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
+        
+        renderer.flipX = rigid.velocity.x < 0;
+        
+        // Check if the node has been reach
+        if (patrolPath[nextPatrolPointID].x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
+            patrolPath[nextPatrolPointID].x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
+            patrolPath[nextPatrolPointID].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
+            patrolPath[nextPatrolPointID].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+        {
+            // Check if it was the last node
+            if (nextPatrolPointID == patrolPath.Count - 1)
+                nextPatrolPointID = 0;
+            else
+                nextPatrolPointID++;
+        }
+        
+        animator.SetBool("isMoving", true);
     }
 
     private void moveFollowingPath()
@@ -294,7 +342,7 @@ public class FoeController : MonoBehaviour
         {
             if (other.tag == "PlayerAttack")
             {
-                life -= playerTransform.GetComponent<PlayerController>().attackDamage;
+                life -= gameManager.playerDamage;
 
                 if (life <= 0)
                 {
@@ -336,6 +384,7 @@ public class FoeController : MonoBehaviour
     
     private void OnDrawGizmos()
     {
+        // Draw path gizmos
         if (false && path != null)
         {
             // Draw the path
@@ -358,6 +407,39 @@ public class FoeController : MonoBehaviour
             // Draw the movement vector
             /*Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, transform.position + new Vector3(rigid.velocity.x, rigid.velocity.y));*/
+        }
+
+        // Draw patrol path gizmos
+        if (true && patrolPath != null && patrolPath.Count == 4)
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        Gizmos.color = Color.cyan;
+                        Gizmos.DrawCube(patrolPath[i], new Vector3(0.1f, 0.1f));
+                        Gizmos.DrawLine(new Vector3(patrolPath[i].x, patrolPath[i].y), new Vector3(patrolPath[i + 1].x, patrolPath[i + 1].y));
+                        break;
+                    case 1:
+                        Gizmos.color = Color.green;
+                        Gizmos.DrawCube(patrolPath[i], new Vector3(0.1f, 0.1f));
+                        Gizmos.DrawLine(new Vector3(patrolPath[i].x, patrolPath[i].y), new Vector3(patrolPath[i + 1].x, patrolPath[i + 1].y));
+                        break;
+                    case 2:
+                        Gizmos.color = Color.yellow;
+                        Gizmos.DrawCube(patrolPath[i], new Vector3(0.1f, 0.1f));
+                        Gizmos.DrawLine(new Vector3(patrolPath[i].x, patrolPath[i].y), new Vector3(patrolPath[i + 1].x, patrolPath[i + 1].y));
+                        break;
+                    case 3:
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawCube(patrolPath[i], new Vector3(0.1f, 0.1f));
+                        Gizmos.DrawLine(new Vector3(patrolPath[i].x, patrolPath[i].y), new Vector3(patrolPath[0].x, patrolPath[0].y));
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }

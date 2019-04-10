@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PathFindingManager : MonoBehaviour
 {
-    [SerializeField] private float maxUpdateTime;
-    
     Queue<FoeController> pathAskedBy = new Queue<FoeController>();
 
     private FoeController currentPathAskBy;

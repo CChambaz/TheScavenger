@@ -22,7 +22,7 @@ public class PauseMenu : MonoBehaviour
                 return;
             }
 
-            if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+            if (gameManager.gameRunning)
                 gameManager.gameState = GameManager.GameState.PAUSE;
         }
     }

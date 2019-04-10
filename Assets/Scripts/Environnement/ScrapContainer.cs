@@ -31,7 +31,7 @@ public class ScrapContainer : MonoBehaviour
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        nodeID = gameManager.grid.GetNodeIDFromPosition(transform.position);
+        nodeID = gameManager.grid.GetNearestWalkableNode(transform.position);
         life = maxLife;
 
         if(FindObjectOfType<PlayerController>() != null)
