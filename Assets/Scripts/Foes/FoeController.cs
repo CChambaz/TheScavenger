@@ -33,6 +33,10 @@ public class FoeController : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float foodSmallSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodMediumSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodBigSpawnChance;
+
+    private bool isInvicible = false;
+    [SerializeField] private float timeToRecovery = 0.4f;
+    private float LastHit;
     
     private enum Type
     {
@@ -100,6 +104,14 @@ public class FoeController : MonoBehaviour
     {
         if (gameManager.gameState == GameManager.GameState.INGAMEDAY || gameManager.gameState == GameManager.GameState.INGAMENIGHT)
         {
+            if (isInvicible)
+            {
+                if (Time.time > LastHit + timeToRecovery) ;
+                {
+                    isInvicible = false;
+                }
+            }
+
             switch (state)
             {
                 case State.IDLE:
@@ -290,10 +302,13 @@ public class FoeController : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (state != State.DEAD)
+        if (state != State.DEAD && !isInvicible)
         {
             if (other.tag == "PlayerAttack")
             {
+                isInvicible = true;
+                LastHit = Time.time;
+                animator.SetTrigger("isHurting");
                 life -= playerTransform.GetComponent<PlayerController>().attackDamage;
 
                 if (life <= 0)

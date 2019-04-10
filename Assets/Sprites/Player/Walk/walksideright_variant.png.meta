@@ -1,9 +1,11 @@
 fileFormatVersion: 2
-guid: 671414f4ead122e4fa06094e3b9d815c
+guid: 3badb1dcce3b0754fa5eb1eb1c3c593f
 TextureImporter:
   fileIDToRecycleName:
-    21300000: hurtfront_0
-    21300002: hurtfront_1
+    21300000: walksideright_variant_0
+    21300002: walksideright_variant_1
+    21300004: walksideright_variant_2
+    21300006: walksideright_variant_3
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -86,7 +88,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: hurtfront_0
+      name: walksideright_variant_0
       rect:
         serializedVersion: 2
         x: 0
@@ -100,13 +102,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4eada600b5684249a0547b559dbf3dd
+      spriteID: c0c060d69244eb1408ff0ef71e680e4c
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: hurtfront_1
+      name: walksideright_variant_1
       rect:
         serializedVersion: 2
         x: 64
@@ -120,7 +122,47 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8e7e6d39e3b5c674784ec63159a8e142
+      spriteID: 555742026bdd55f4e8459b63a6526865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: walksideright_variant_2
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a409d8e6a6d2a349a001ffe10608f52
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: walksideright_variant_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1476b2b3a3ae5bc44b582bd5ac321702
       vertices: []
       indices: 
       edges: []
@@ -128,7 +170,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 3216d0804ddab334e970adc48b70f052
+    spriteID: 316bffbc06a40f441aef1cf2c1ab8d31
     vertices: []
     indices: 
     edges: []

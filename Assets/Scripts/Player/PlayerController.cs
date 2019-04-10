@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.Mathematics;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,14 +15,17 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement attributs")]
     [SerializeField] float moveSpeed;
+    [SerializeField] float moveRecoil;
 
-    [Header("Dash attributs")]
-    [SerializeField] float dashSpeed;
+    [Header("Dash attributs")] [SerializeField]
+    float dashSpeed;
+
     [SerializeField] float dashDuration;
     [SerializeField] float dashCoolDown;
 
-    [Header("Attack attributs")]
-    [SerializeField] float attackRange;
+    [Header("Attack attributs")] [SerializeField]
+    float attackRange;
+
     [SerializeField] public int attackDamage;
     [SerializeField] float attackCoolDown;
     [SerializeField] BoxCollider2D attackRightCollider;
@@ -29,12 +33,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] BoxCollider2D attackUpCollider;
     [SerializeField] BoxCollider2D attackDownCollider;
 
-    [SerializeField] private float invicibilityTimeAfterHit;// TODO: Rename to link with hitted state
-    
-    int movementUp;
-    int movementDown;
-    int movementRight;
-    int movementLeft;
+    [SerializeField] private float invicibilityTimeAfterHit; // TODO: Rename to link with hitted state
+    [SerializeField] private float recoveryTime;
+
+    [SerializeField] public GameObject slashRight;
+    [SerializeField] public GameObject slashLeft;
+    [SerializeField] public GameObject slashUp;
+    [SerializeField] public GameObject slashDown;
+
+    float movementUp;
+    float movementDown;
+    float movementRight;
+    float movementLeft;
+    public bool right;
 
     private SoundPlayerManager sound;
 
@@ -62,11 +73,11 @@ public class PlayerController : MonoBehaviour
         DEAD
     }
 
-    private PlayerState state = PlayerState.IDLE;
-    
+    [SerializeField] private PlayerState state = PlayerState.IDLE;
+
     private float lastHitAt;
     private PlayerLife life;
-    
+
     private void Start()
     {
         rage = GetComponent<PlayerRage>();
@@ -85,20 +96,32 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Check if the game is running
-        if ((gameManager.gameState != GameManager.GameState.INGAMEDAY && gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
+        if ((gameManager.gameState != GameManager.GameState.INGAMEDAY &&
+             gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
             return;
 
-        if (state == PlayerState.HITTED && Time.time < lastHitAt + invicibilityTimeAfterHit)
+        if (state == PlayerState.HITTED)
+        {
+
+            if (Time.time > lastHitAt + invicibilityTimeAfterHit)
+            {
+                animator.SetBool("isHurting", false);
+                state = PlayerState.IDLE;
+            }
+
             return;
-            
+        }
+
         // Check if the user launched an attack
-        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.ATTACKING && Time.time > lastAttackAt + attackCoolDown)
+        if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetAxis("Fire1") > 0) && state != PlayerState.DASHING &&
+            Time.time > lastAttackAt + attackCoolDown)
             StartAttack();
 
         // Check if the user launched a dash
-        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetAxis("Jump") > 0) && state != PlayerState.DASHING && Time.time > lastDashAt + dashCoolDown)
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetAxis("Jump") > 0) && state != PlayerState.DASHING &&
+            Time.time > lastDashAt + dashCoolDown)
             StartDash();
-        
+
         switch (state)
         {
             case PlayerState.WALKING:
@@ -112,48 +135,47 @@ public class PlayerController : MonoBehaviour
                     Dash();
                     return;
                 }
+
                 break;
             case PlayerState.ATTACKING:
                 break;
             case PlayerState.DEAD:
                 break;
             case PlayerState.IDLE:
-                Move();
+                if (state != PlayerState.ATTACKING)
+                {
+                    Move();
+                }
+
                 break;
         }
 
-        if(state == PlayerState.IDLE)
+        if (state == PlayerState.IDLE)
         {
-            animator.SetBool("isWalking", false);
-            animator.SetBool("isWalkingUp", false);
-            animator.SetBool("isWalkingDown", false);
-
             switch (actualOrientation)
             {
                 case Orientation.UP:
                     animator.SetBool("isIdleUp", true);
                     animator.SetBool("isIdleDown", false);
+                    animator.SetBool("isIdle", false);
                     break;
                 case Orientation.DOWN:
                     animator.SetBool("isIdleUp", false);
                     animator.SetBool("isIdleDown", true);
+                    animator.SetBool("isIdle", false);
                     break;
                 case Orientation.HORIZONTAL:
                     animator.SetBool("isIdleUp", false);
                     animator.SetBool("isIdleDown", false);
+                    animator.SetBool("isIdle", true);
                     break;
             }
-        }
-        else
-        {
-            animator.SetBool("isIdleUp", false);
-            animator.SetBool("isIdleDown", false);
         }
     }
 
     private void Move()
     {
-        if (Input.GetKey(KeyCode.W)||Input.GetAxis("Vertical") > 0)
+        if (Input.GetKey(KeyCode.W) || Input.GetAxis("Vertical") > 0)
             movementUp = 1;
         else
             movementUp = 0;
@@ -164,28 +186,51 @@ public class PlayerController : MonoBehaviour
             movementDown = 0;
 
         if (Input.GetKey(KeyCode.D) || Input.GetAxis("Horizontal") > 0)
+        {
             movementRight = 1;
+            right = true;
+        }
         else
             movementRight = 0;
 
         if (Input.GetKey(KeyCode.A) || Input.GetAxis("Horizontal") < 0)
+        {
             movementLeft = 1;
+            right = false;
+        }
         else
             movementLeft = 0;
 
-        Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
+        if (movementRight + movementLeft + movementUp + movementDown > 1)
+        {
+            movementRight *= Mathf.Sqrt(0.5f);
+            movementLeft *= Mathf.Sqrt(0.5f);
+            movementDown *= Mathf.Sqrt(0.5f);
+            movementUp *= Mathf.Sqrt(0.5f);
+        }
 
+        Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
         moveVector *= moveSpeed * rage.activeRageMultiplier * Time.deltaTime;
-        
+
         if (moveVector == Vector3.zero)
+        {
             state = PlayerState.IDLE;
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isWalkingUp", false);
+            animator.SetBool("isWalkingDown", false);
+        }
         else
+        {
             state = PlayerState.WALKING;
-        
+            animator.SetBool("isIdleUp", false);
+            animator.SetBool("isIdleDown", false);
+            animator.SetBool("isIdle", false);
+        }
+
         rigid.velocity = moveVector;
 
         // Animator managing state
-        if(movementRight > 0 || movementLeft > 0)
+        if (movementRight > 0 || movementLeft > 0)
         {
             if (movementRight > 0)
                 renderer.flipX = false;
@@ -198,7 +243,7 @@ public class PlayerController : MonoBehaviour
 
             actualOrientation = Orientation.HORIZONTAL;
         }
-        else if(movementUp > 0)
+        else if (movementUp > 0)
         {
             animator.SetBool("isWalking", false);
             animator.SetBool("isWalkingDown", false);
@@ -206,7 +251,7 @@ public class PlayerController : MonoBehaviour
 
             actualOrientation = Orientation.UP;
         }
-        else if(movementDown > 0)
+        else if (movementDown > 0)
         {
             animator.SetBool("isWalking", false);
             animator.SetBool("isWalkingUp", false);
@@ -224,7 +269,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isWalkingUp", false);
         animator.SetBool("isWalkingDown", false);
 
-        switch(actualOrientation)
+        switch (actualOrientation)
         {
             case Orientation.DOWN:
                 animator.SetBool("isDashingDown", true);
@@ -236,16 +281,14 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool("isDashing", true);
                 break;
         }
-        
+
         dashStartAt = Time.time;
     }
 
     void Dash()
     {
         Vector3 dashVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
-
         dashVector *= dashSpeed * rage.activeRageMultiplier * Time.deltaTime;
-        
         rigid.velocity = dashVector;
     }
 
@@ -256,14 +299,13 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isDashingDown", false);
 
         lastDashAt = Time.time;
-
         state = PlayerState.IDLE;
     }
 
     void StartAttack()
     {
         state = PlayerState.ATTACKING;
-        
+
         animator.SetBool("isWalking", false);
         animator.SetBool("isWalkingUp", false);
         animator.SetBool("isWalkingDown", false);
@@ -300,7 +342,6 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isAttackingDown", false);
 
         state = PlayerState.IDLE;
-        
         lastAttackAt = Time.time;
     }
 
@@ -313,25 +354,89 @@ public class PlayerController : MonoBehaviour
     {
         return attackDamage;
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (state != PlayerState.HITTED && other.tag == "FoeAttack")
         {
             lastHitAt = Time.time;
+            state = PlayerState.HITTED;
+
+            animator.SetBool("isIdle", false);
+            animator.SetBool("isIdleUp", false);
+            animator.SetBool("isIdleDown", false);
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isWalkingUp", false);
+            animator.SetBool("isWalkingDown", false);
+            animator.SetBool("isHurting", true);
+
             if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
             {
                 rigid.isKinematic = true;
-                animator.SetBool("isIdleUp", false);
-                animator.SetBool("isIdleDown", false);
-                animator.SetBool("isWalking", false);
-                animator.SetBool("isWalkingUp", false);
-                animator.SetBool("isWalkingDown", false);
                 animator.SetBool("isDead", true);
                 rigid.velocity = Vector2.zero;
                 state = PlayerState.DEAD;
                 gameManager.gameState = GameManager.GameState.DEATH;
             }
         }
+    }
+
+    void Recoil()
+    {
+        rigid.velocity = Vector2.zero;
+        Vector3 recoilVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
+        recoilVector *= -moveRecoil * rage.activeRageMultiplier * Time.deltaTime;
+        rigid.velocity = recoilVector;
+    }
+
+    void Slash()
+    {
+        Vector3 positionSpawn = Vector3.zero;
+        Vector3 Dir = Vector3.zero;
+        GameObject slash;
+
+        switch (actualOrientation)
+        {
+            case Orientation.UP:
+                //pos and dir
+                Dir = Vector3.up/2;
+                positionSpawn = new Vector3(0.0f, +0.2f, 0.0f);
+                slash = Instantiate(slashUp, (transform.position + positionSpawn), Quaternion.identity);
+                slash.GetComponent<Rigidbody2D>().velocity = Dir;
+                Destroy(slash, 0.35f);
+                break;
+
+            case Orientation.DOWN:
+                Dir = Vector3.down/2;
+                positionSpawn = new Vector3(0.0f, -0.2f, 0.0f);
+                slash = Instantiate(slashDown, (transform.position + positionSpawn), Quaternion.identity);
+                slash.GetComponent<Rigidbody2D>().velocity = Dir;
+                Destroy(slash, 0.35f);
+                break;
+
+            case Orientation.HORIZONTAL:
+                if (right)
+                {
+                    Dir = Vector3.right/2;
+                    positionSpawn = new Vector3(0.2f, 0.0f ,0.0f );
+                    slash = Instantiate(slashRight, (transform.position + positionSpawn), Quaternion.identity);
+                    slash.GetComponent<Rigidbody2D>().velocity = Dir;
+
+
+                    Destroy(slash, 0.35f);
+                }
+                else
+                {
+                    Dir = Vector3.left/2;
+                    positionSpawn = new Vector3(-0.2f, 0.0f, 0.0f);
+                    slash = Instantiate(slashLeft, (transform.position + positionSpawn), Quaternion.identity);
+                    slash.GetComponent<Rigidbody2D>().velocity = Dir;
+                    Destroy(slash, 0.35f);
+                }
+
+                break;
+        }
+
+
     }
 }
