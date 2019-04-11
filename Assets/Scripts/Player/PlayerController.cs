@@ -214,8 +214,6 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
-        moveVector *= moveSpeed * rage.activeRageMultiplier * Time.deltaTime;
-
         moveVector *= moveSpeed * Time.deltaTime;
         
         if (moveVector == Vector3.zero)
@@ -403,7 +401,7 @@ public class PlayerController : MonoBehaviour
     {
         rigid.velocity = Vector2.zero;
         Vector3 recoilVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
-        recoilVector *= -moveRecoil * rage.activeRageMultiplier * Time.deltaTime;
+        recoilVector *= -moveRecoil * Time.deltaTime;
         rigid.velocity = recoilVector;
     }
 

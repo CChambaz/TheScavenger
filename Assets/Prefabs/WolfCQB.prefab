@@ -183,9 +183,13 @@ MonoBehaviour:
   foodSmallSpawnChance: 0.6
   foodMediumSpawnChance: 0.8
   foodBigSpawnChance: 1
+  particleSlash: {fileID: 8565233339902062821, guid: 650c0616130173a4a843bad188c51578,
+    type: 3}
+  timeToRecovery: 0.4
   state: 0
   playerTransform: {fileID: 0}
   path: []
+  patrolPath: []
   target: {x: 0, y: 0, z: 0}
 --- !u!1 &6893994978750119949
 GameObject:

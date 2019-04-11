@@ -34,6 +34,8 @@ public class FoeController : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float foodMediumSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodBigSpawnChance;
 
+    [SerializeField] private GameObject particleSlash;
+
     private bool isInvicible = false;
     [SerializeField] private float timeToRecovery = 0.4f;
     private float LastHit;
@@ -354,6 +356,7 @@ public class FoeController : MonoBehaviour
         {
             if (other.tag == "PlayerAttack")
             {
+                Destroy(Instantiate(particleSlash, transform.position, Quaternion.identity), 0.5f);
                 isInvicible = true;
                 LastHit = Time.time;
                 animator.SetTrigger("isHurting");
