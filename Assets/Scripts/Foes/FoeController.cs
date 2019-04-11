@@ -178,6 +178,7 @@ public class FoeController : MonoBehaviour
     public void ResetFoe()
     {
         state = State.IDLE;
+        animator.SetBool("isDead", false);
         life = maxLife;
         morals = maxMorals;
 
@@ -411,7 +412,12 @@ public class FoeController : MonoBehaviour
     {
         if (path == null || path.Count <= 0)
         {
-            wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
+            // Check if the wondering point has been reached
+            if(wanderingPoint.transform.position.x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
+               wanderingPoint.transform.position.x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
+               wanderingPoint.transform.position.y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
+               wanderingPoint.transform.position.y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+                    wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
             
             // Ask for a path
             pathFindingManager.RegisterToQueue(this);

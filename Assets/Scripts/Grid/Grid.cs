@@ -5,7 +5,8 @@ using UnityEngine;
 public class Grid
 {
     public GridNode[,] nodes;
-
+    public List<GridNode> walkableNodes = new List<GridNode>();
+    
     private MapParameters parameters;
 
     private MapGenerator mapGenerator;
@@ -66,12 +67,17 @@ public class Grid
 
     public void TranslateGridUpdateJobResult()
     {
+        walkableNodes.Clear();
+        
         for (int y = 0; y < parameters.mapSizeY - 1; y++)
         {
             for (int x = 0; x < parameters.mapSizeX - 1; x++)
             {
                 // Define wheter or not the node is walkable
                 nodes[x, y].movementCost = gridUpdateJob.result[x + (y * (parameters.mapSizeX - 1))] == 1 ? 1f : 0f;
+
+                if (nodes[x, y].walkable)
+                    walkableNodes.Add(nodes[x, y]);
             }
         }
         

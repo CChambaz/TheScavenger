@@ -98,22 +98,13 @@ public class PatrolPathGenerator : MonoBehaviour
 
     public Vector2 GetRandomWalkableNode()
     {
-        Vector2Int nodeID = new Vector2Int();
-
-        // Search a walkable node
-        while (true)
-        {
-            nodeID.x = random.NextInt(0, gameManager.parameters.mapSizeX - 1);
-            nodeID.y = random.NextInt(0, gameManager.parameters.mapSizeY - 1);
-
-            if (grid.nodes[nodeID.x, nodeID.y].walkable)
-                break;
-        }
+        // Get a walkable node
+        GridNode node = grid.walkableNodes[random.NextInt(0, grid.walkableNodes.Count - 1)];
 
         Vector2 nodePosition = new Vector2();
 
-        nodePosition.x = grid.nodes[nodeID.x, nodeID.y].gridPositionX;
-        nodePosition.y = grid.nodes[nodeID.x, nodeID.y].gridPositionY;
+        nodePosition.x = node.gridPositionX;
+        nodePosition.y = node.gridPositionY;
 
         return nodePosition;
     }
