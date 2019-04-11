@@ -25,6 +25,11 @@ public class PatrolPathGenerator : MonoBehaviour
         parameters = gameManager.parameters;
     }
 
+    private void Start()
+    {
+        random = new Random(gameManager.seed);
+    }
+
     public List<Vector3> GeneratePatrolPath(Vector2 position)
     {
         if (mapGenerator == null)
@@ -70,8 +75,6 @@ public class PatrolPathGenerator : MonoBehaviour
 
     public Vector2 GetRandomReachablePoint(Vector2 position, Vector2 direction)
     {
-        random = new Random(gameManager.seed + gameManager.levelNumber);
-        
         // Check if no direction has been provided
         if (direction == Vector2.zero)
         {
@@ -93,15 +96,20 @@ public class PatrolPathGenerator : MonoBehaviour
         return ray.point;
     }
 
-    public Vector2 GetRandomNode(Vector2Int min, Vector2Int max)
+    public Vector2 GetRandomWalkableNode()
     {
-        random = new Random(gameManager.seed + gameManager.levelNumber);
-        
         Vector2Int nodeID = new Vector2Int();
 
-        nodeID.x = random.NextInt(min.x, max.x);
-        nodeID.y = random.NextInt(min.y, max.y);
-        
+        // Search a walkable node
+        while (true)
+        {
+            nodeID.x = random.NextInt(0, gameManager.parameters.mapSizeX - 1);
+            nodeID.y = random.NextInt(0, gameManager.parameters.mapSizeY - 1);
+
+            if (grid.nodes[nodeID.x, nodeID.y].walkable)
+                break;
+        }
+
         Vector2 nodePosition = new Vector2();
 
         nodePosition.x = grid.nodes[nodeID.x, nodeID.y].gridPositionX;

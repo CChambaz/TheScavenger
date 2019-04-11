@@ -19,6 +19,8 @@ public class FoeController : MonoBehaviour
     
     [SerializeField] private CircleCollider2D hitBox;
 
+    [SerializeField] public GameObject wanderingPointPrefab;
+    
     [Header("Morals parameters")]
     [SerializeField] private int maxMorals;
     [SerializeField] private int individualMoralsDamageFromHit;
@@ -49,6 +51,7 @@ public class FoeController : MonoBehaviour
     {
         IDLE,
         PATROL,
+        WANDERING,
         POSITIONING,
         ATTACK,
         FLEE,
@@ -63,6 +66,7 @@ public class FoeController : MonoBehaviour
     public Transform playerTransform;
     public List<Vector3> path = null;
     public List<Vector3> patrolPath = null;
+    public GameObject wanderingPoint;
     public Vector3 fleePoint = Vector3.zero;
     private int nextPatrolPointID = 0;
     private int life;
@@ -105,6 +109,9 @@ public class FoeController : MonoBehaviour
 
         life = maxLife;
         
+        // Spawn a wandering point
+        wanderingPoint = Instantiate(wanderingPointPrefab, Vector3.zero, Quaternion.identity);
+        
         SetLootAmount();
     }
 
@@ -146,7 +153,12 @@ public class FoeController : MonoBehaviour
                 case State.IDLE:
                     break;
                 case State.PATROL:
+                    UpdateState();
                     moveToNextPatrolPoint();
+                    break;
+                case State.WANDERING:
+                    UpdateState();
+                    Wandering();
                     break;
                 case State.POSITIONING:
                     GoAtAttackRange();
@@ -168,6 +180,23 @@ public class FoeController : MonoBehaviour
         state = State.IDLE;
         life = maxLife;
         morals = maxMorals;
+
+        // Check if inside a building
+        if (gameManager.isInOpenBuilding(transform.position))
+            return;
+        
+        // Try to get a patrol path
+        patrolPath = patrolPathGenerator.GeneratePatrolPath(transform.position);
+
+        // If no patrol path has been return, prepare to wander around the map
+        if (patrolPath == null)
+        {
+            wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
+            target = wanderingPoint.transform;
+            pathFindingManager.RegisterToQueue(this);
+        }
+        else
+            wanderingPoint.transform.position = Vector3.zero;
     }
     
     private void UpdateState()
@@ -203,6 +232,9 @@ public class FoeController : MonoBehaviour
             state = State.PATROL;
             return;
         }
+
+        if (state != State.WANDERING && wanderingPoint.transform.position != Vector3.zero)
+            state = State.WANDERING;
     }
 
     private void GoAtAttackRange()
@@ -344,7 +376,7 @@ public class FoeController : MonoBehaviour
         if (patrolPath[nextPatrolPointID].x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
             patrolPath[nextPatrolPointID].x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
             patrolPath[nextPatrolPointID].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
-            patrolPath[nextPatrolPointID].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+            patrolPath[nextPatrolPointID].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))  
         {
             // Check if it was the last node
             if (nextPatrolPointID == patrolPath.Count - 1)
@@ -373,6 +405,29 @@ public class FoeController : MonoBehaviour
            path[path.Count - 1].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
            path[path.Count - 1].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
             path.RemoveAt(path.Count - 1);
+    }
+
+    private void Wandering()
+    {
+        if (path == null || path.Count <= 0)
+        {
+            wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
+            
+            // Ask for a path
+            pathFindingManager.RegisterToQueue(this);
+            
+            // Set speed to rush strait to the target
+            Vector3 moveVector = wanderingPoint.transform.position - transform.position;
+        
+            rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
+            renderer.flipX = rigid.velocity.x < 0;
+        
+            animator.SetBool("isMoving", true);
+        }
+        else
+        {
+            moveFollowingPath();   
+        }
     }
     
     private void Die()
