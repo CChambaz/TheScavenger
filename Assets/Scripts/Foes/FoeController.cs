@@ -17,9 +17,14 @@ public class FoeController : MonoBehaviour
 
     [SerializeField] private float hittedDuration;
     
-    [SerializeField] public float getPathCD;
-    
     [SerializeField] private CircleCollider2D hitBox;
+
+    [Header("Morals parameters")]
+    [SerializeField] private int maxMorals;
+    [SerializeField] private int individualMoralsDamageFromHit;
+    [SerializeField] private int surroundingMoralsDamageFromHit;
+    [SerializeField] private int surroundingmoralsDamageFromDeath;
+    [SerializeField] private float reinforcementRange;
     
     [Header("Food prefab reference")]
     [SerializeField] private GameObject foodSmallPrefab;
@@ -33,7 +38,7 @@ public class FoeController : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float foodSmallSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodMediumSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodBigSpawnChance;
-    
+
     private enum Type
     {
         CQB,
@@ -58,31 +63,33 @@ public class FoeController : MonoBehaviour
     public Transform playerTransform;
     public List<Vector3> path = null;
     public List<Vector3> patrolPath = null;
+    public Vector3 fleePoint = Vector3.zero;
     private int nextPatrolPointID = 0;
     private int life;
     private GameManager gameManager;
     private Animator animator;
     private BoxCollider2D collider;
     private Coroutine attackCoroutine = null;
-    public Vector3 target;
+    public Transform target;
     private float attackStartAt;
     private float lastPathGetAt = 0;
 
     private PathFindingManager pathFindingManager;
-
+    private PatrolPathGenerator patrolPathGenerator;
+    private FoesManager foesManager;
+    
     private int itemToSpawn;
     private float hittedAt;
+    public bool isActive = false;
+    public int morals;
     
-    /*
-     * TODO:
-     *     - Change the condition for the walking animation
-     *         -> Base it on the velocity of the rigid
-     */
     private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
         pathFindingManager = FindObjectOfType<PathFindingManager>();
         playerTransform = gameManager.GetPlayerTranform();
+        patrolPathGenerator = FindObjectOfType<PatrolPathGenerator>();
+        foesManager = FindObjectOfType<FoesManager>();
     }
 
     // Start is called before the first frame update
@@ -98,15 +105,13 @@ public class FoeController : MonoBehaviour
 
         life = maxLife;
         
-        patrolPath = FindObjectOfType<PatrolPathGenerator>().GeneratePatrolPath(transform.position);
-        
         SetLootAmount();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (gameManager.gameRunning)
+        if (gameManager.gameRunning && isActive)
         {
             switch (state)
             {
@@ -134,7 +139,7 @@ public class FoeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (gameManager.gameRunning)
+        if (gameManager.gameRunning && isActive)
         {
             switch (state)
             {
@@ -144,10 +149,10 @@ public class FoeController : MonoBehaviour
                     moveToNextPatrolPoint();
                     break;
                 case State.POSITIONING:
-                    target = playerTransform.position;
-                    GoAtRange();
+                    GoAtAttackRange();
                     break;
                 case State.FLEE:
+                    GoAtReinforcementRange();
                     break;
                 case State.HITTED:
                     // TODO: Apply push while hitted
@@ -158,6 +163,13 @@ public class FoeController : MonoBehaviour
         }
     }
 
+    public void ResetFoe()
+    {
+        state = State.IDLE;
+        life = maxLife;
+        morals = maxMorals;
+    }
+    
     private void UpdateState()
     {
         // Check if at detection range
@@ -168,6 +180,8 @@ public class FoeController : MonoBehaviour
             // Check if the foe can see the player
             if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
             {
+                foesManager.RegisterToFightingList(this);
+                target = playerTransform;
                 state = State.POSITIONING;
                 return;
             }
@@ -191,7 +205,7 @@ public class FoeController : MonoBehaviour
         }
     }
 
-    private void GoAtRange()
+    private void GoAtAttackRange()
     {
         // Check if the player is at range
         if ((playerTransform.position - transform.position).magnitude <= attackRange)
@@ -232,6 +246,49 @@ public class FoeController : MonoBehaviour
         animator.SetBool("isMoving", true);
     }
 
+    private void GoAtReinforcementRange()
+    {
+        // Check if the target is at range
+        if ((target.position - transform.position).magnitude <= reinforcementRange)
+        {
+            // Return to the fight
+            FoeController foe = target.GetComponent<FoeController>();
+            foe.state = State.POSITIONING;
+            foe.target = playerTransform;
+            target = playerTransform;
+            state = State.POSITIONING;
+            rigid.velocity = Vector2.zero;
+            path = null;
+            return;
+        }
+        
+        RaycastHit2D ray = Physics2D.Raycast(transform.position, target.position - transform.position);
+        
+        // Check if the foe has a direct line of view to the target
+        if (ray.collider.tag == "Foe")
+        {
+            path = null;
+            moveToTarget();
+        } 
+        else if (path != null && path.Count > 0)
+        {
+            // Follow the path
+            moveFollowingPath();
+        }
+        else
+        {
+            path = null;
+            
+            // Get path to the player
+            pathFindingManager.RegisterToQueue(this);
+            
+            // Go straight to the player
+            moveToTarget();
+        }
+        
+        animator.SetBool("isMoving", true);
+    }
+    
     private void LaunchAttack()
     {
         animator.SetBool("isPreparingAttack", false);
@@ -266,8 +323,8 @@ public class FoeController : MonoBehaviour
     
     private void moveToTarget()
     {
-        // Set speed to rush strait to the player
-        Vector3 moveVector = target - transform.position;
+        // Set speed to rush strait to the target
+        Vector3 moveVector = target.position - transform.position;
         
         rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
         renderer.flipX = rigid.velocity.x < 0;
@@ -317,11 +374,13 @@ public class FoeController : MonoBehaviour
            path[path.Count - 1].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
             path.RemoveAt(path.Count - 1);
     }
-
+    
     private void Die()
     {
         if(attackCoroutine != null)
             StopCoroutine(attackCoroutine);
+        
+        foesManager.ReduceFightingFoesMoral(this, surroundingmoralsDamageFromDeath);
         
         hitBox.tag = "Foe";
         animator.SetBool("isMoving", false);
@@ -350,6 +409,8 @@ public class FoeController : MonoBehaviour
                     return;
                 }
 
+                morals -= individualMoralsDamageFromHit;
+                foesManager.ReduceFightingFoesMoral(this, surroundingMoralsDamageFromHit);
                 hittedAt = Time.time;
                 state = State.HITTED;
             }
@@ -384,6 +445,11 @@ public class FoeController : MonoBehaviour
     
     private void OnDrawGizmos()
     {
+        if (false)
+        {
+            Gizmos.DrawCube(fleePoint, new Vector3(0.5f, 0.5f));
+            Gizmos.DrawLine(transform.position, fleePoint);
+        }
         // Draw path gizmos
         if (false && path != null)
         {
@@ -410,7 +476,7 @@ public class FoeController : MonoBehaviour
         }
 
         // Draw patrol path gizmos
-        if (true && patrolPath != null && patrolPath.Count == 4)
+        if (false && patrolPath != null && patrolPath.Count == 4)
         {
             for(int i = 0; i < 4; i++)
             {

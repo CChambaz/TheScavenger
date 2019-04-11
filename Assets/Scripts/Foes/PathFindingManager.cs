@@ -28,7 +28,7 @@ public class PathFindingManager : MonoBehaviour
 
             // Get and send the path to the foe
             currentPathAskBy.path = pathFinder.GetPathTo(gameManager.grid, currentPathAskBy.transform.position,
-                currentPathAskBy.target);
+                currentPathAskBy.target.position);
         }
     }
 

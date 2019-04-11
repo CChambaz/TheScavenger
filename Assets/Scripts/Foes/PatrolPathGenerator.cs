@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.UIElements.GraphView;
 using UnityEngine;
+using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
 
 public class PatrolPathGenerator : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class PatrolPathGenerator : MonoBehaviour
     private MapParameters parameters;
     private Grid grid;
     private int offset = 1;
+    private Random random;
     
     // Start is called before the first frame update
     void Awake()
@@ -65,6 +68,48 @@ public class PatrolPathGenerator : MonoBehaviour
         return patrolPath;
     }
 
+    public Vector2 GetRandomReachablePoint(Vector2 position, Vector2 direction)
+    {
+        random = new Random(gameManager.seed + gameManager.levelNumber);
+        
+        // Check if no direction has been provided
+        if (direction == Vector2.zero)
+        {
+            int rnd = random.NextInt(0, 100);
+            
+            //Define the random direction
+            if(rnd < 25)
+                direction = Vector2.up;
+            else if(rnd < 50)
+                direction = Vector2.right;
+            else if(rnd < 75)
+                direction = Vector2.down;
+            else
+                direction = Vector2.left;
+        }
+        
+        RaycastHit2D ray = Physics2D.Raycast(position, direction);
+
+        return ray.point;
+    }
+
+    public Vector2 GetRandomNode(Vector2Int min, Vector2Int max)
+    {
+        random = new Random(gameManager.seed + gameManager.levelNumber);
+        
+        Vector2Int nodeID = new Vector2Int();
+
+        nodeID.x = random.NextInt(min.x, max.x);
+        nodeID.y = random.NextInt(min.y, max.y);
+        
+        Vector2 nodePosition = new Vector2();
+
+        nodePosition.x = grid.nodes[nodeID.x, nodeID.y].gridPositionX;
+        nodePosition.y = grid.nodes[nodeID.x, nodeID.y].gridPositionY;
+
+        return nodePosition;
+    }
+    
     private Vector2Int GetNearestBuilding(Vector2Int startingNodeID)
     {
         List<GridNode> openList = new List<GridNode>();

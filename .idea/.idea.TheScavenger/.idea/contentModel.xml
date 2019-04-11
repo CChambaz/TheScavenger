@@ -78,6 +78,7 @@
           <e p="Foes" t="Include">
             <e p="AStarPathfinding.cs" t="Include" />
             <e p="FoeController.cs" t="Include" />
+            <e p="FoesManager.cs" t="Include" />
             <e p="PathFindingManager.cs" t="Include" />
             <e p="PatrolPathGenerator.cs" t="Include" />
             <e p="Projectile.cs" t="Include" />

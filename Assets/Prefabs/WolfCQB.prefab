@@ -168,9 +168,13 @@ MonoBehaviour:
   attackSpeed: 200
   attackDuration: 0.25
   attackDamage: 25
-  hittedDuration: 0
-  getPathCD: 10
+  hittedDuration: 1
   hitBox: {fileID: 710652072813558022}
+  maxMorals: 100
+  individualMoralsDamageFromHit: 10
+  surroundingMoralsDamageFromHit: 5
+  surroundingmoralsDamageFromDeath: 20
+  reinforcementRange: 2
   foodSmallPrefab: {fileID: 7564787723500514629, guid: a66ad5b0baf186443b08763d36271a58,
     type: 3}
   foodMediumPrefab: {fileID: 7112604956250697327, guid: c0e9cfd0ce9a59248bb0ff081d568f92,
@@ -186,7 +190,11 @@ MonoBehaviour:
   state: 0
   playerTransform: {fileID: 0}
   path: []
-  target: {x: 0, y: 0, z: 0}
+  patrolPath: []
+  fleePoint: {x: 0, y: 0, z: 0}
+  target: {fileID: 0}
+  isActive: 0
+  morals: 0
 --- !u!1 &6893994978750119949
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,7 @@ public class MapDrawer : MonoBehaviour
     [SerializeField] private GameObject foePrefab;
 
     private GameManager gameManager;
+    private FoesManager foesManager;
     
     // Storage list
     private List<GameObject> scrapContainerList = new List<GameObject>();
@@ -28,6 +29,7 @@ public class MapDrawer : MonoBehaviour
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        foesManager = FindObjectOfType<FoesManager>();
         parameters = gameManager.parameters;
         tilesReferences = parameters.tilesReferences;
     }
@@ -64,7 +66,8 @@ public class MapDrawer : MonoBehaviour
                         break;
                     case Cell.CellState.FOESPAWN:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
-                        foesList.Add(Instantiate(foePrefab, currentObjectPosition, Quaternion.identity));
+                        //foesList.Add(Instantiate(foePrefab, currentObjectPosition, Quaternion.identity));
+                        foesManager.SpawnFoe(currentObjectPosition);
                         cells[x, y].state = Cell.CellState.WALKABLE;
                         break;
                     default:
@@ -86,13 +89,15 @@ public class MapDrawer : MonoBehaviour
         
         scrapContainerList.Clear();
 
-        foreach (GameObject obj in foesList)
+        /*foreach (GameObject obj in foesList)
         {
             if (obj != null)
                 Destroy(obj);
         }
             
-        foesList.Clear();
+        foesList.Clear();*/
+        
+        foesManager.DestroyAllFoe();
         
         for (int x = 0; x < parameters.mapSizeX; x++)
         {
