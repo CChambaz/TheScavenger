@@ -16,6 +16,8 @@ public class CameraManager : MonoBehaviour
         MoveTo,
     }
 
+    private bool screenShake = false;
+
     private stateCamera state = stateCamera.Find;
 
     //Vector2 newPositionCamera = Vector2.zero;
@@ -37,7 +39,20 @@ public class CameraManager : MonoBehaviour
 
         parameters = gameManager.parameters;
     }
-    
+
+    public float timeScreenShake= 0.4f;
+    // Desired duration of the shake effect
+    private float shakeDuration = 0f;
+
+    // A measure of magnitude for the shake. Tweak based on your preference
+    private float shakeMagnitude = 0.03f;
+
+    // A measure of how quickly the shake effect should evaporate
+    private float dampingSpeed = 1.0f;
+
+    // The initial position of the GameObject
+    Vector3 initialPosition;
+
 
     // Update is called once per frame
     void Update()
@@ -101,7 +116,29 @@ public class CameraManager : MonoBehaviour
                         break;
                 }
             }
+
+            if (screenShake)
+            {
+                if (shakeDuration > 0)
+                {
+                    transform.localPosition += Random.insideUnitSphere * shakeMagnitude;
+
+                    shakeDuration -= Time.deltaTime * dampingSpeed;
+                }
+                else
+                {
+                    screenShake = false;
+                    shakeDuration = 0f;
+
+                }
+            }
         }
+    }
+
+    public void ScreenShake()
+    {
+        shakeDuration = timeScreenShake;
+        screenShake = true;
     }
 
     public void AddMonsterIsAttacking(Transform monster)
@@ -182,5 +219,7 @@ public class CameraManager : MonoBehaviour
        // Gizmos.DrawLine(new Vector3(bottomLeftPosition.x, bottomLeftPosition.y + parameters.mapSizeY, bottomLeftPosition.z), new Vector3(bottomLeftPosition.x + parameters.mapSizeX, bottomLeftPosition.y + parameters.mapSizeY, bottomLeftPosition.z));
        // Gizmos.DrawLine(new Vector3(bottomLeftPosition.x + parameters.mapSizeX, bottomLeftPosition.y + parameters.mapSizeY, bottomLeftPosition.z), new Vector3(bottomLeftPosition.x + parameters.mapSizeX, bottomLeftPosition.y, bottomLeftPosition.z));
     }
+
+
 }
 
