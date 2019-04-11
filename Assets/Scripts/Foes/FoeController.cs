@@ -436,6 +436,7 @@ public class FoeController : MonoBehaviour
             StopCoroutine(attackCoroutine);
         
         foesManager.ReduceFightingFoesMoral(this, surroundingmoralsDamageFromDeath);
+        foesManager.UnregisterToFightingList(this);
         
         hitBox.tag = "Foe";
         animator.SetBool("isMoving", false);

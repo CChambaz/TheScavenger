@@ -54,6 +54,12 @@ public class FoesManager : MonoBehaviour
             fightingFoes.Add(foe);
     }
     
+    public void UnregisterToFightingList(FoeController foe)
+    {
+        if(fightingFoes.Contains(foe))
+            fightingFoes.Remove(foe);
+    }
+    
     public void ReduceFightingFoesMoral(FoeController emitter, int amount)
     {
         foreach (FoeController foe in fightingFoes)
