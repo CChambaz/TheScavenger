@@ -175,17 +175,18 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        if (Input.GetKey(KeyCode.W) || Input.GetAxis("Vertical") > 0)
+
+        if (Input.GetKey(KeyCode.W) || Input.GetAxisRaw("Vertical") > 0)
             movementUp = 1;
         else
             movementUp = 0;
 
-        if (Input.GetKey(KeyCode.S) || Input.GetAxis("Vertical") < 0)
+        if (Input.GetKey(KeyCode.S) || Input.GetAxisRaw("Vertical") < 0)
             movementDown = 1;
         else
             movementDown = 0;
 
-        if (Input.GetKey(KeyCode.D) || Input.GetAxis("Horizontal") > 0)
+        if (Input.GetKey(KeyCode.D) || Input.GetAxisRaw("Horizontal") > 0)
         {
             movementRight = 1;
             right = true;
@@ -193,7 +194,7 @@ public class PlayerController : MonoBehaviour
         else
             movementRight = 0;
 
-        if (Input.GetKey(KeyCode.A) || Input.GetAxis("Horizontal") < 0)
+        if (Input.GetKey(KeyCode.A) || Input.GetAxisRaw("Horizontal") < 0)
         {
             movementLeft = 1;
             right = false;

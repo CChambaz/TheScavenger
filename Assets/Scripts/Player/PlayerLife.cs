@@ -65,7 +65,6 @@ public class PlayerLife : MonoBehaviour
 
     public bool ApplyDamage(int amount)
     {
-        amount = 0;
         // Apply damage to the armor
         if (activeArmor > 0)
         {
