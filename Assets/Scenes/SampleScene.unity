@@ -1781,6 +1781,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sizeBox: {x: 3.65, y: 2.25}
   smoothSpeed: 0.125
+  timeScreenShake: 0.4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -4638,7 +4639,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -463.00003, y: 301.3}
+  m_AnchoredPosition: {x: -463, y: 301.3}
   m_SizeDelta: {x: -1300.9, y: -807.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1866405257

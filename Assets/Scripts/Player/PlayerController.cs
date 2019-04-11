@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float dashDuration;
     [SerializeField] float dashCoolDown;
+    [SerializeField] private GameObject SmokeDash;
 
     [Header("Attack attributs")] [SerializeField]
     float attackRange;
@@ -454,5 +455,11 @@ public class PlayerController : MonoBehaviour
         }
 
 
+    }
+
+    // Instantiate prefab smoke
+    public void InstanceSmoke()
+    {
+        Destroy(Instantiate(SmokeDash, transform.position + new Vector3(0, -0.1f), Quaternion.identity), 0.5f);
     }
 }

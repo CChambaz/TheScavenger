@@ -332,7 +332,6 @@ GameObject:
   - component: {fileID: 1258205763557482108}
   - component: {fileID: 1258205763557482109}
   - component: {fileID: 1258205763557482110}
-  - component: {fileID: 1258205763557482104}
   - component: {fileID: 8170902123416974284}
   - component: {fileID: 899247882924727524}
   m_Layer: 0
@@ -490,6 +489,8 @@ MonoBehaviour:
   dashSpeed: 250
   dashDuration: 0.25
   dashCoolDown: 0.1
+  SmokeDash: {fileID: 8813164170515445471, guid: 3904e012752d02a44b72eef6c3cf17c3,
+    type: 3}
   attackRange: 2
   attackDamage: 20
   attackCoolDown: 0.2
@@ -522,23 +523,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseLife: 100
   baseArmor: 50
---- !u!114 &1258205763557482104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1258205763557482105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 696d977df1330794ba958d9d243fcfe7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  energyUseRate: 1
-  rageMultiplier: 10
-  maxEnergy: 100
-  activeRageMultiplier: 2
-  actualEnergy: 25
 --- !u!114 &8170902123416974284
 MonoBehaviour:
   m_ObjectHideFlags: 0
