@@ -39,7 +39,7 @@ public class InterLevelMenu : MonoBehaviour
 
     private bool hasAppliedRequirement = false;
 
-    private void Start()
+    private void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
         playerLife = FindObjectOfType<PlayerLife>();

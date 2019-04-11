@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,12 +11,15 @@ public class MainMenu : MonoBehaviour
     [SerializeField] TextMeshProUGUI deathText;
     [SerializeField] Text startText;
     [SerializeField] private Button startButton;
+    [SerializeField] private InputField seedText;
     
     private GameManager gameManager;
-
+    
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+
+        seedText.text = gameManager.seed.ToString();
     }
 
     void Update()
@@ -23,7 +27,7 @@ public class MainMenu : MonoBehaviour
         if (gameManager.gameState == GameManager.GameState.MAINMENU)
         {
             deathText.gameObject.SetActive(false);
-
+            
             if (gameManager.generationInProgress)
             {
                 startText.text = "Loading...";
@@ -62,6 +66,11 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(gameManager.GenerateMap());
     }
 
+    public void UpdateSeed()
+    {
+        gameManager.seed = Convert.ToUInt32(seedText.text);
+    }
+    
     public void ExitGame()
     {
         Application.Quit();

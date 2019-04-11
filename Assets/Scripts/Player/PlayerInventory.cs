@@ -8,6 +8,12 @@ public class PlayerInventory : MonoBehaviour
     [NonSerialized] public int scrap = 0;
     [NonSerialized] public int food = 0;
 
+    public void ResetInventory()
+    {
+        scrap = 0;
+        food = 0;
+    }
+    
     public void AddScrap(int amount)
     {
         scrap += amount;

@@ -82,6 +82,20 @@ public class GameManager : MonoBehaviour
         grid.PrepareGridUpdateJob();
         mapDrawer.DrawMapBorder();
         grid.CreateGrid();
+        player.ResetPlayer();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (gameState == GameState.INGAMEDAY)
+            actualDayDuration += Time.deltaTime;
+
+        if (actualDayDuration >= dayDuration && gameState == GameState.INGAMEDAY)
+            gameState = GameState.INGAMENIGHT;
+        
+        if (previousGameState != gameState)
+            ApplyChangeState();
     }
 
     public IEnumerator GenerateMap()
@@ -144,24 +158,12 @@ public class GameManager : MonoBehaviour
         gameState = GameState.INGAMEDAY;
     }
     
-    // Update is called once per frame
-    void Update()
-    {
-        if (gameState == GameState.INGAMEDAY)
-            actualDayDuration += Time.deltaTime;
-
-        if (actualDayDuration >= dayDuration && gameState == GameState.INGAMEDAY)
-            gameState = GameState.INGAMENIGHT;
-        
-        if (previousGameState != gameState)
-            ApplyChangeState();
-    }
-
     void ApplyChangeState()
     {
         switch (previousGameState)
         {
             case GameState.MAINMENU:
+                ResetGame();
                 StartCoroutine(Fade(mainMenuCanvas, 0));
                 break;
             case GameState.PAUSE:
@@ -172,6 +174,7 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(Fade(interCanvas, 0));
                 break;
             case GameState.DEATH:
+                ResetGame();
                 StartCoroutine(Fade(mainMenuCanvas, 0));
                 break;
             default:
@@ -200,6 +203,12 @@ public class GameManager : MonoBehaviour
         previousGameState = gameState;
     }
 
+    private void ResetGame()
+    {
+        player.ResetPlayer();
+        levelNumber = 1;
+    }
+    
     public Transform GetPlayerTranform()
     {
         return player.GetComponent<Transform>();
@@ -231,11 +240,64 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public bool gameRunning
+    {
+        get { return gameState == GameState.INGAMEDAY || gameState == GameState.INGAMENIGHT; }
+    }
+
+    public int playerDamage
+    {
+        get { return player.attackDamage; }
+    }
+    
     private void OnDrawGizmosSelected()
     {
         if (false)
         {
-            foreach (var node in grid.nodes)
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    switch (x)
+                    {
+                        case 0:
+                            Gizmos.color = Color.white;
+                            break;
+                        case 1:
+                            Gizmos.color = Color.cyan;
+                            break;
+                        case 2:
+                            Gizmos.color = Color.green;
+                            break;
+                        case 3:
+                            Gizmos.color = Color.yellow;
+                            break;
+                        case 4:
+                            Gizmos.color = Color.blue;
+                            break;
+                        case 5:
+                            Gizmos.color = Color.red;
+                            break;
+                        case 6:
+                            Gizmos.color = Color.magenta;
+                            break;
+                        case 7:
+                            Gizmos.color = Color.gray;
+                            break;
+                        case 8:
+                            Gizmos.color = Color.grey;
+                            break;
+                        case 9:
+                            Gizmos.color = Color.black;
+                            break;
+                    }
+                    
+                    Gizmos.DrawCube(new Vector3(grid.nodes[x,y].gridPositionX, grid.nodes[x,y].gridPositionY), new Vector3(0.1f, 0.1f));
+                    Gizmos.DrawCube(new Vector3(mapGenerator.cells[x,y].positionX, mapGenerator.cells[x,y].positionY), new Vector3(0.1f, 0.1f));
+                }
+            }
+            
+            /*foreach (var node in grid.nodes)
             {
                 if (node.walkable)
                 {

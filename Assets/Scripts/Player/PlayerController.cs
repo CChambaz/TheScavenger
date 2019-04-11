@@ -56,7 +56,6 @@ public class PlayerController : MonoBehaviour
 
     float lastAttackAt = 0;
 
-    PlayerRage rage;
     private GameManager gameManager;
 
     Animator animator;
@@ -77,17 +76,22 @@ public class PlayerController : MonoBehaviour
 
     private float lastHitAt;
     private PlayerLife life;
+    private PlayerInventory inventory;
+
+    private void Awake()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+        life = GetComponent<PlayerLife>();
+        inventory = GetComponent<PlayerInventory>();
+        rigid = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
-        rage = GetComponent<PlayerRage>();
-        gameManager = FindObjectOfType<GameManager>();
-        animator = GetComponent<Animator>();
         renderer = GetComponent<SpriteRenderer>();
-        rigid = GetComponent<Rigidbody2D>();
         actualOrientation = Orientation.HORIZONTAL;
         sound = GetComponent<SoundPlayerManager>();
-        life = GetComponent<PlayerLife>();
 
         Camera.main.GetComponent<CameraManager>().AddPlayer(transform);
     }
@@ -96,8 +100,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Check if the game is running
-        if ((gameManager.gameState != GameManager.GameState.INGAMEDAY &&
-             gameManager.gameState != GameManager.GameState.INGAMENIGHT) || state == PlayerState.DEAD)
+        if (!gameManager.gameRunning || state == PlayerState.DEAD)
             return;
 
         if (state == PlayerState.HITTED)
@@ -213,6 +216,8 @@ public class PlayerController : MonoBehaviour
         Vector3 moveVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
         moveVector *= moveSpeed * rage.activeRageMultiplier * Time.deltaTime;
 
+        moveVector *= moveSpeed * Time.deltaTime;
+        
         if (moveVector == Vector3.zero)
         {
             state = PlayerState.IDLE;
@@ -289,7 +294,9 @@ public class PlayerController : MonoBehaviour
     void Dash()
     {
         Vector3 dashVector = new Vector3(movementRight - movementLeft, movementUp - movementDown);
-        dashVector *= dashSpeed * rage.activeRageMultiplier * Time.deltaTime;
+
+        dashVector *= dashSpeed * Time.deltaTime;
+        
         rigid.velocity = dashVector;
     }
 
@@ -356,6 +363,16 @@ public class PlayerController : MonoBehaviour
         return attackDamage;
     }
 
+    public void ResetPlayer()
+    {
+        inventory.ResetInventory();
+        life.ResetLife();
+        
+        animator.SetBool("isDead", false);
+        rigid.isKinematic = false;
+        state = PlayerState.IDLE;
+    }
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (state != PlayerState.HITTED && other.tag == "FoeAttack")

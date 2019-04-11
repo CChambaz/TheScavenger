@@ -79,6 +79,7 @@
             <e p="AStarPathfinding.cs" t="Include" />
             <e p="FoeController.cs" t="Include" />
             <e p="PathFindingManager.cs" t="Include" />
+            <e p="PatrolPathGenerator.cs" t="Include" />
             <e p="Projectile.cs" t="Include" />
             <e p="Weapon.cs" t="Include" />
             <e p="Weapons" t="Include">
@@ -99,11 +100,6 @@
           </e>
           <e p="Map" t="Include">
             <e p="Cell.cs" t="Include" />
-            <e p="GenerationUtilities" t="Include">
-              <e p="bsp_MapDivider.cs" t="Include" />
-              <e p="ca_BuildingGenerator.cs" t="Include" />
-              <e p="ca_FillMap.cs" t="Include" />
-            </e>
             <e p="MapDrawer.cs" t="Include" />
             <e p="MapGenerationJob.cs" t="Include" />
             <e p="MapGenerator.cs" t="Include" />
@@ -121,7 +117,6 @@
             <e p="PlayerController.cs" t="Include" />
             <e p="PlayerInventory.cs" t="Include" />
             <e p="PlayerLife.cs" t="Include" />
-            <e p="PlayerRage.cs" t="Include" />
             <e p="PlayerUI.cs" t="Include" />
           </e>
           <e p="Sound" t="Include">
