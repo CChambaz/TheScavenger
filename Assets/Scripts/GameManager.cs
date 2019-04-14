@@ -225,10 +225,11 @@ public class GameManager : MonoBehaviour
             {
                 if (mapGenerator.cells[x, y].positionX > position.x - (parameters.cellSize.x / 4) &&
                     mapGenerator.cells[x, y].positionX < position.x + (parameters.cellSize.x / 4) &&
-                    mapGenerator.cells[x, y].positionX > position.y - (parameters.cellSize.y / 4) &&
-                    mapGenerator.cells[x, y].positionX < position.y + (parameters.cellSize.y / 4))
+                    mapGenerator.cells[x, y].positionY > position.y - (parameters.cellSize.y / 4) &&
+                    mapGenerator.cells[x, y].positionY < position.y + (parameters.cellSize.y / 4))
                 {
                     cellID = new Vector2Int(x, y);
+                    
                     break;
                 }
             }
@@ -239,7 +240,9 @@ public class GameManager : MonoBehaviour
 
         // Check if a cell has been found
         if (cellID.x == -1 && cellID.y == -1)
+        {
             return false;
+        }
         
         // Check the cell neighbours
         for (int y = -1; y <= 1; y++)
@@ -247,7 +250,7 @@ public class GameManager : MonoBehaviour
             for (int x = -1; x <= 1; x++)
             {
                 // Check if outside of the map
-                if (cellID.x + x < 0 || cellID.x + x >= parameters.mapSizeX - 1 || cellID.y + y < 0 || cellID.y + y >= parameters.mapSizeY - 1)
+                if (cellID.x + x < 0 || cellID.x + x > parameters.mapSizeX || cellID.y + y < 0 || cellID.y + y > parameters.mapSizeY)
                     continue;
                     
                 if (mapGenerator.cells[cellID.x + x, cellID.y + y].state == Cell.CellState.OPENDBUILDING ||

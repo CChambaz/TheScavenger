@@ -59,4 +59,7 @@ public class MapParameters : ScriptableObject
 
     [Header("Tiles")] 
     [SerializeField] public TilesReferences tilesReferences;
+
+    [Header("Pathfinding parameters")]
+    [SerializeField] public int pathfindingMaxCheckedNode;
 }

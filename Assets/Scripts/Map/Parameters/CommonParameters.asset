@@ -43,3 +43,4 @@ MonoBehaviour:
   maxOpenBuildingItem: 3
   forceSpawnScrapWhenHasNotSpawnSince: 3
   tilesReferences: {fileID: 11400000, guid: d10845cb6474bfb48a96ab1bc54c60e8, type: 2}
+  pathfindingMaxCheckedNode: 50

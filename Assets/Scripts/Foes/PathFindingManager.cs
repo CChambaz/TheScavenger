@@ -8,13 +8,13 @@ public class PathFindingManager : MonoBehaviour
 
     private FoeController currentPathAskBy;
     private GameManager gameManager;
-    private AStarPathfinding pathFinder;
+    private Pathfinding pathFinder;
     
     // Start is called before the first frame update
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        pathFinder = new AStarPathfinding(gameManager.parameters);
+        pathFinder = new Pathfinding(gameManager.parameters);
     }
 
     // Update is called once per frame
@@ -26,9 +26,13 @@ public class PathFindingManager : MonoBehaviour
             // Get the first foe that has requested a path and remove it from the queue
             currentPathAskBy = pathAskedBy.Dequeue();
 
-            // Get and send the path to the foe
-            currentPathAskBy.path = pathFinder.GetPathTo(gameManager.grid, currentPathAskBy.transform.position,
-                currentPathAskBy.target.position);
+            // Check if the requested path does not need the full path
+            if (currentPathAskBy.state == FoeController.State.WANDERING)
+                currentPathAskBy.path = pathFinder.GetAStarPathTo(gameManager.grid, currentPathAskBy.transform.position,
+                    currentPathAskBy.target.position, true);
+            else
+                currentPathAskBy.path = pathFinder.GetAStarPathTo(gameManager.grid, currentPathAskBy.transform.position,
+                    currentPathAskBy.target.position);
         }
     }
 
