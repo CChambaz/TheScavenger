@@ -8,14 +8,22 @@ public class FoesManager : MonoBehaviour
     [SerializeField] private Transform poolPosition;
     [SerializeField] private int initialPoolSize;
     [SerializeField] private GameObject[] foePrefabs;
+
+    [Header("Night spawn parameters")] 
+    [SerializeField] private float nightSpawnCoolDown;
+    [SerializeField] private Transform[] nightSpawner;
+    [SerializeField] private int maxNightSpawnInARow;
     
     private List<FoeController> activeFoes = new List<FoeController>();
     private List<FoeController> inactiveFoes = new List<FoeController>();
     private List<FoeController> fightingFoes = new List<FoeController>();
-    
+
+    private GameManager gameManager;
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
+        
         // Prepare the object pool
         for (int i = 0; i < initialPoolSize; i++)
         {
@@ -33,7 +41,8 @@ public class FoesManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (fightingFoes.Count > 0)
+        // Apply moral check if there is foes fighting and if the game is in the day state
+        if (fightingFoes.Count > 0 && gameManager.gameState == GameManager.GameState.INGAMEDAY)
         {
             foreach (FoeController foe in fightingFoes)
             {
@@ -45,6 +54,46 @@ public class FoesManager : MonoBehaviour
                     foe.state = FoeController.State.FLEE;
                 }
             }
+        }
+    }
+
+    public IEnumerator NightSpawn()
+    {
+        int nextSpawnerToUseID = 0;
+        int spawnInARow = 0;
+        Vector2Int spawnNodeID = Vector2Int.zero;
+        Vector2 spawnPostion = Vector2.zero;
+        
+        while (true)
+        {
+            if (gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+            {
+                spawnNodeID = gameManager.grid.GetNearestWalkableNode(nightSpawner[nextSpawnerToUseID].position);
+
+                // Check if a walkable node has been found
+                if (spawnNodeID.x != -1 && spawnNodeID.y != -1)
+                {
+                    spawnPostion.x = gameManager.grid.nodes[spawnNodeID.x, spawnNodeID.y].gridPositionX;
+                    spawnPostion.y = gameManager.grid.nodes[spawnNodeID.x, spawnNodeID.y].gridPositionY;
+                    
+                    SpawnFoe(spawnPostion, true);
+
+                    spawnInARow++;
+                    
+                    if (spawnInARow >= maxNightSpawnInARow)
+                    {
+                        spawnInARow = 0;
+                        yield return new WaitForSeconds(nightSpawnCoolDown);
+                    }
+                }
+
+                if (nextSpawnerToUseID < nightSpawner.Length - 1)
+                    nextSpawnerToUseID++;
+                else
+                    nextSpawnerToUseID = 0;
+            }
+            
+            yield return new WaitForEndOfFrame();
         }
     }
 
@@ -62,6 +111,9 @@ public class FoesManager : MonoBehaviour
     
     public void ReduceFightingFoesMoral(FoeController emitter, int amount)
     {
+        if (gameManager.gameState != GameManager.GameState.INGAMEDAY)
+            return;
+        
         foreach (FoeController foe in fightingFoes)
         {
             // Check if not the emitter
@@ -89,8 +141,25 @@ public class FoesManager : MonoBehaviour
 
         return nearestFoe;
     }
+
+    public void SetAllActiveFoesHostile()
+    {
+        foreach (FoeController foe in activeFoes)
+        {
+            // Check if the foe has to be set as hostile
+            if (foe.state == FoeController.State.DEAD || 
+                foe.state == FoeController.State.ATTACK ||
+                foe.state == FoeController.State.HITTED ||
+                foe.state == FoeController.State.POSITIONING)
+                continue;
+
+            foe.target = foe.playerTransform;
+            foe.state = FoeController.State.POSITIONING;
+            RegisterToFightingList(foe);
+        }
+    }
     
-    public void SpawnFoe(Vector3 position)
+    public void SpawnFoe(Vector3 position, bool hostileSpawn = false)
     {
         FoeController spawningFoe;
         
@@ -120,7 +189,7 @@ public class FoesManager : MonoBehaviour
         spawningFoe.isActive = true;
 
         // Reset the foe
-        spawningFoe.ResetFoe();
+        spawningFoe.ResetFoe(hostileSpawn);
     }
     
     public void DestroyAllFoe()

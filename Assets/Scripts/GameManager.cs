@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
 
     public MapDrawer mapDrawer;
     public MapGenerator mapGenerator;
+    private FoesManager foesManager;
+    private Coroutine nightSpawnCoroutine;
     public PlayerSpawn playerSpawn;
     
     public PlayerController player;
@@ -70,6 +72,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         mapDrawer = FindObjectOfType<MapDrawer>();
+        foesManager = FindObjectOfType<FoesManager>();
         
         mapGenerator = new MapGenerator(parameters, mapDrawer, seed);
         grid = new Grid(parameters, mapGenerator);
@@ -173,6 +176,13 @@ public class GameManager : MonoBehaviour
             case GameState.INTERLEVEL:
                 StartCoroutine(Fade(interCanvas, 0));
                 break;
+            case GameState.INGAMENIGHT :
+                // Check if it has to stop the night spawn coroutine
+                if(gameState == GameState.INTERLEVEL ||
+                   gameState == GameState.MAINMENU ||
+                   gameState == GameState.DEATH)
+                    StopCoroutine(nightSpawnCoroutine);
+                break;
             case GameState.DEATH:
                 ResetGame();
                 StartCoroutine(Fade(mainMenuCanvas, 0));
@@ -192,6 +202,10 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.INTERLEVEL:
                 StartCoroutine(Fade(interCanvas, 1));
+                break;
+            case GameState.INGAMENIGHT :
+                foesManager.SetAllActiveFoesHostile();
+                nightSpawnCoroutine = StartCoroutine(foesManager.NightSpawn());
                 break;
             case GameState.DEATH:
                 StartCoroutine(Fade(mainMenuCanvas, 1));

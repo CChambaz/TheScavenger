@@ -100,16 +100,15 @@ public class FoeController : MonoBehaviour
         patrolPathGenerator = FindObjectOfType<PatrolPathGenerator>();
         foesManager = FindObjectOfType<FoesManager>();
         avoidanceBehavior = GetComponentInChildren<AvoidanceBehavior>();
+        rigid = GetComponent<Rigidbody2D>();
+        collider = GetComponent<BoxCollider2D>();
+        animator = GetComponent<Animator>();
+        renderer = GetComponent<SpriteRenderer>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        collider = GetComponent<BoxCollider2D>();
-        animator = GetComponent<Animator>();
-        renderer = GetComponent<SpriteRenderer>();
-        
         // Define the attack range
         attackRange = attackSpeed * attackDuration * Time.fixedDeltaTime;
 
@@ -170,7 +169,7 @@ public class FoeController : MonoBehaviour
                     break;
                 case State.POSITIONING:
                     GoAtAttackRange();
-                    avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
+                    //avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
                     break;
                 case State.FLEE:
                     GoAtReinforcementRange();
@@ -184,31 +183,44 @@ public class FoeController : MonoBehaviour
         }
     }
 
-    public void ResetFoe()
+    public void ResetFoe(bool hostileReset = false)
     {
-        state = State.IDLE;
         animator.SetBool("isDead", false);
+        animator.SetBool("isPreparingAttack", false);
+        animator.SetBool("isMoving", false);
+        animator.SetBool("isAttacking", false);
         life = maxLife;
         morals = maxMorals;
 
-        // Check if inside a building
-        if (patrolPathGenerator.isInOpenBuilding(transform.position))
+        if (hostileReset)
         {
-            return;
-        }
-        
-        // Try to get a patrol path
-        patrolPath = patrolPathGenerator.GeneratePatrolPath(transform.position);
-
-        // If no patrol path has been return, prepare to wander around the map
-        if (patrolPath == null)
-        {
-            wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
-            target = wanderingPoint.transform;
-            pathFindingManager.RegisterToQueue(this);
+            target = playerTransform;
+            state = State.POSITIONING;
+            foesManager.RegisterToFightingList(this);
         }
         else
-            wanderingPoint.transform.position = Vector3.zero;
+        {
+            state = State.IDLE;
+            
+            // Check if inside a building
+            if (patrolPathGenerator.isInOpenBuilding(transform.position))
+            {
+                return;
+            }
+
+            // Try to get a patrol path
+            patrolPath = patrolPathGenerator.GeneratePatrolPath(transform.position);
+
+            // If no patrol path has been return, prepare to wander around the map
+            if (patrolPath == null)
+            {
+                wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
+                target = wanderingPoint.transform;
+                pathFindingManager.RegisterToQueue(this);
+            }
+            else
+                wanderingPoint.transform.position = Vector3.zero;
+        }
     }
     
     private void UpdateState()
@@ -216,12 +228,11 @@ public class FoeController : MonoBehaviour
         // Check if at detection range
         if ((playerTransform.position - transform.position).magnitude <= detectionRange)
         {
-            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
+            RaycastHit2D ray = Physics2D.Raycast(transform.position + (playerTransform.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
 
             // Check if the foe can see the player
             if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
             {
-                Debug.Log("Want to attack");
                 rigid.velocity = Vector2.zero;
                 foesManager.RegisterToFightingList(this);
                 target = playerTransform;
@@ -265,7 +276,7 @@ public class FoeController : MonoBehaviour
             return;
         }
         
-        RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
+        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
         
         // Check if the foe has a direct line of view to the player
         if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
@@ -376,7 +387,7 @@ public class FoeController : MonoBehaviour
         
         attackCoroutine = null;
         
-        state = State.IDLE;
+        state = State.POSITIONING;
     }
     
     private void moveToTarget()

@@ -17,9 +17,17 @@ public class Pathfinding
         if (targetPosition.x < 0 || targetPosition.x >= parameters.mapSizeX || targetPosition.y < 0 || targetPosition.y >= parameters.mapSizeY)
             return null;
         
+        // Create the point forming the path to reach the target
+        List<Vector3> path = new List<Vector3>();
+        
         // Get the node IDs of the current position and of the target
         Vector2Int currentNodeID = grid.GetNearestWalkableNode(startPosition);
         Vector2Int targetNodeID = grid.GetNearestWalkableNode(targetPosition);
+        
+        // Check if nodes has been found
+        if ((currentNodeID.x == -1 && currentNodeID.y == -1) ||
+            (targetNodeID.x == -1 && targetNodeID.y == -1))
+            return path;
         
         // Get the node of the current position and of the target
         GridNode startingNode = grid.nodes[currentNodeID.x, currentNodeID.y];
@@ -84,9 +92,6 @@ public class Pathfinding
             if (limitSearch)
                 iterator++;
         }
-        
-        // Create the point forming the path to reach the target
-        List<Vector3> path = new List<Vector3>();
         
         while (currentNode != startingNode)
         {
