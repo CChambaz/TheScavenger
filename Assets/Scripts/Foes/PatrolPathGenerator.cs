@@ -18,16 +18,15 @@ public class PatrolPathGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        gameManager = FindObjectOfType<GameManager>();
-
-        mapGenerator = gameManager.mapGenerator;
-        grid = gameManager.grid;
-        parameters = gameManager.parameters;
+        gameManager = FindObjectOfType<GameManager>();       
     }
 
     private void Start()
     {
         random = new Random(gameManager.seed);
+        mapGenerator = gameManager.mapGenerator;
+        grid = gameManager.grid;
+        parameters = gameManager.parameters;
     }
 
     public List<Vector3> GeneratePatrolPath(Vector2 position)
@@ -71,29 +70,6 @@ public class PatrolPathGenerator : MonoBehaviour
         patrolPath.Add(new Vector3(bottomRightCornerNode.gridPositionX, bottomRightCornerNode.gridPositionY));
         
         return patrolPath;
-    }
-
-    public Vector2 GetRandomReachablePoint(Vector2 position, Vector2 direction)
-    {
-        // Check if no direction has been provided
-        if (direction == Vector2.zero)
-        {
-            int rnd = random.NextInt(0, 100);
-            
-            //Define the random direction
-            if(rnd < 25)
-                direction = Vector2.up;
-            else if(rnd < 50)
-                direction = Vector2.right;
-            else if(rnd < 75)
-                direction = Vector2.down;
-            else
-                direction = Vector2.left;
-        }
-        
-        RaycastHit2D ray = Physics2D.Raycast(position, direction);
-
-        return ray.point;
     }
 
     public Vector2 GetRandomWalkableNode()
@@ -181,6 +157,143 @@ public class PatrolPathGenerator : MonoBehaviour
 
         return false;
     }
+    
+    public bool isInOpenBuilding(Vector2 position)
+    {
+        Vector2Int cellID = new Vector2Int(-1, -1);
+        
+        // Get the cell at the given position
+        cellID = mapGenerator.GetCellID(position);
+
+        // Check if a cell has been found
+        if (cellID.x == -1 && cellID.y == -1)
+        {
+            return false;
+        }
+
+        Vector2Int buildingCellID = new Vector2Int(-1, -1);
+        
+        // Check the cell neighbours
+        for (int y = -1; y <= 1; y++)
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                // Check if outside of the map
+                if (cellID.x + x < 0 || cellID.x + x > parameters.mapSizeX || cellID.y + y < 0 || cellID.y + y > parameters.mapSizeY)
+                    continue;
+
+                // Check if the cell is a part of an open building
+                if (mapGenerator.cells[cellID.x + x, cellID.y + y].state == Cell.CellState.OPENDBUILDING ||
+                    mapGenerator.cells[cellID.x + x, cellID.y + y].state == Cell.CellState.OPENBUILDINGGATE)
+                {
+                    buildingCellID.x = cellID.x + x;
+                    buildingCellID.y = cellID.y + y;
+                }
+            }
+        }
+        
+        // Check if an open building has been found
+        if (buildingCellID.x == -1 && buildingCellID.y == -1)
+        {
+            return false;
+        }
+        
+        // Check if it has to start to move the Y first
+        if (mapGenerator.cells[buildingCellID.x + 1, buildingCellID.y].state == Cell.CellState.WALKABLE &&
+            mapGenerator.cells[buildingCellID.x - 1, buildingCellID.y].state == Cell.CellState.WALKABLE)
+        {
+            // Move the cell ID to the bottom left corner of the building
+            while (buildingCellID.y - 1 > 0 && (mapGenerator.cells[buildingCellID.x, buildingCellID.y - 1].state ==
+                                        Cell.CellState.OPENDBUILDING ||
+                                        mapGenerator.cells[buildingCellID.x, buildingCellID.y - 1].state ==
+                                        Cell.CellState.OPENBUILDINGGATE))
+                buildingCellID.y--;
+            
+            while (buildingCellID.x - 1 > 0 && (mapGenerator.cells[buildingCellID.x - 1, buildingCellID.y].state ==
+                                                Cell.CellState.OPENDBUILDING ||
+                                                mapGenerator.cells[buildingCellID.x - 1, buildingCellID.y].state ==
+                                                Cell.CellState.OPENBUILDINGGATE))
+                buildingCellID.x--;
+        }
+        else
+        {
+            // Move the cell ID to the bottom left corner of the building
+            while (buildingCellID.x - 1 > 0 && (mapGenerator.cells[buildingCellID.x - 1, buildingCellID.y].state ==
+                                                Cell.CellState.OPENDBUILDING ||
+                                                mapGenerator.cells[buildingCellID.x - 1, buildingCellID.y].state ==
+                                                Cell.CellState.OPENBUILDINGGATE))
+                buildingCellID.x--;
+            
+            while (buildingCellID.y - 1 > 0 && (mapGenerator.cells[buildingCellID.x, buildingCellID.y - 1].state ==
+                                        Cell.CellState.OPENDBUILDING ||
+                                        mapGenerator.cells[buildingCellID.x, buildingCellID.y - 1].state ==
+                                        Cell.CellState.OPENBUILDINGGATE))
+                buildingCellID.y--;
+        }
+
+        Vector2Int buildingSize = GetOpenBuildingSize(buildingCellID.x, buildingCellID.y);
+        
+        // Check if the given position is beetwen the min and max position value of the building
+        bool yPosIsGreaterThanMinBuildingPosY = mapGenerator.cells[buildingCellID.x, buildingCellID.y].positionY < position.y; 
+        bool yPosIsSmallerThanMaxBuildingPosY = mapGenerator.cells[buildingCellID.x, buildingCellID.y + buildingSize.y].positionY > position.y; 
+        bool xPosIsGreaterThanMinBuildingPosX = mapGenerator.cells[buildingCellID.x, buildingCellID.y].positionX < position.x; 
+        bool xPosIsSmallerThanMaxBuildingPosX = mapGenerator.cells[buildingCellID.x + buildingSize.x, buildingCellID.y].positionX > position.x;
+
+        if (yPosIsGreaterThanMinBuildingPosY && yPosIsSmallerThanMaxBuildingPosY &&
+            xPosIsGreaterThanMinBuildingPosX && xPosIsSmallerThanMaxBuildingPosX)
+            return true;
+        
+        return false;
+    }
+    
+    Vector2Int GetOpenBuildingSize(int indexX, int indexY)
+    {
+        Vector2Int buildingSize = Vector2Int.zero;
+
+        int iterator = 0;
+
+        // Define the X size of the building
+        while (true)
+        {
+            // Check if not on the edge of the map
+            if (indexX + iterator < parameters.mapSizeX)
+            {
+                // Check if still in the building
+                if (mapGenerator.cells[indexX + iterator, indexY].state != Cell.CellState.OPENDBUILDING && 
+                    mapGenerator.cells[indexX + iterator, indexY].state != Cell.CellState.OPENBUILDINGGATE)
+                    break;
+
+                iterator++;
+            }
+            else
+                break;
+        }
+
+        buildingSize.x = iterator;
+        iterator = 0;
+
+        // Define the Y size of the building
+        while (true)
+        {
+            // Check if not on the edge of the map
+            if (indexY + iterator < parameters.mapSizeY)
+            {
+                // Check if still in the building
+                if (mapGenerator.cells[indexX, indexY + iterator].state != Cell.CellState.OPENDBUILDING &&
+                    mapGenerator.cells[indexX, indexY + iterator].state != Cell.CellState.OPENBUILDINGGATE)
+                    break;
+
+                iterator++;
+            }
+            else
+                break;
+        }
+
+        buildingSize.y = iterator;
+
+        return buildingSize;
+    }
+    
     private void OnDrawGizmos()
     {
         /*foreach (Cell cell in debugStartCell)

@@ -213,54 +213,6 @@ public class GameManager : MonoBehaviour
     {
         return player.GetComponent<Transform>();
     }
-
-    public bool isInOpenBuilding(Vector2 position)
-    {
-        Vector2Int cellID = new Vector2Int(-1, -1);
-        
-        // Get the cell at the given position
-        for (int y = 0; y < parameters.mapSizeY; y++)
-        {
-            for (int x = 0; x < parameters.mapSizeX; x++)
-            {
-                if (mapGenerator.cells[x, y].positionX > position.x - (parameters.cellSize.x / 4) &&
-                    mapGenerator.cells[x, y].positionX < position.x + (parameters.cellSize.x / 4) &&
-                    mapGenerator.cells[x, y].positionY > position.y - (parameters.cellSize.y / 4) &&
-                    mapGenerator.cells[x, y].positionY < position.y + (parameters.cellSize.y / 4))
-                {
-                    cellID = new Vector2Int(x, y);
-                    
-                    break;
-                }
-            }
-
-            if (cellID.x != -1 && cellID.y != -1)
-                break;
-        }
-
-        // Check if a cell has been found
-        if (cellID.x == -1 && cellID.y == -1)
-        {
-            return false;
-        }
-        
-        // Check the cell neighbours
-        for (int y = -1; y <= 1; y++)
-        {
-            for (int x = -1; x <= 1; x++)
-            {
-                // Check if outside of the map
-                if (cellID.x + x < 0 || cellID.x + x > parameters.mapSizeX || cellID.y + y < 0 || cellID.y + y > parameters.mapSizeY)
-                    continue;
-                    
-                if (mapGenerator.cells[cellID.x + x, cellID.y + y].state == Cell.CellState.OPENDBUILDING ||
-                    mapGenerator.cells[cellID.x + x, cellID.y + y].state == Cell.CellState.OPENBUILDINGGATE)
-                    return true;
-            }
-        }
-        
-        return false;
-    }
     
     IEnumerator Fade(CanvasGroup canvasGroup, float fadeGoal)
     {

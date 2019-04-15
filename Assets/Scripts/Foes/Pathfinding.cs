@@ -84,8 +84,6 @@ public class Pathfinding
             if (limitSearch)
                 iterator++;
         }
-
-        //currentNode = targetNode;
         
         // Create the point forming the path to reach the target
         List<Vector3> path = new List<Vector3>();

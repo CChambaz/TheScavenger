@@ -116,14 +116,13 @@ public class FoesManager : MonoBehaviour
         
         // Add the foe to the active list
         activeFoes.Add(spawningFoe);
-        
-        // Enable the foe
+
         spawningFoe.isActive = true;
-        
+
         // Reset the foe
         spawningFoe.ResetFoe();
     }
-
+    
     public void DestroyAllFoe()
     {
         while (activeFoes.Count > 0)

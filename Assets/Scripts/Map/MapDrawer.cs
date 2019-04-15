@@ -66,7 +66,6 @@ public class MapDrawer : MonoBehaviour
                         break;
                     case Cell.CellState.FOESPAWN:
                         freeTileMap.SetTile(currentCellPosition, tilesReferences.ground);
-                        //foesList.Add(Instantiate(foePrefab, currentObjectPosition, Quaternion.identity));
                         foesManager.SpawnFoe(currentObjectPosition);
                         cells[x, y].state = Cell.CellState.WALKABLE;
                         break;

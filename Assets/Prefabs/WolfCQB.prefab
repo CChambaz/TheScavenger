@@ -172,6 +172,9 @@ MonoBehaviour:
   hitBox: {fileID: 710652072813558022}
   wanderingPointPrefab: {fileID: 2207825185361833172, guid: 1f3f76be8dbaed94bbdc873cddc321f3,
     type: 3}
+  rayLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
   maxMorals: 100
   individualMoralsDamageFromHit: 40
   surroundingMoralsDamageFromHit: 20
@@ -198,6 +201,7 @@ MonoBehaviour:
   target: {fileID: 0}
   isActive: 0
   morals: 0
+  avoidanceVector: {x: 0, y: 0, z: 0}
 --- !u!1 &6893994978750119949
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +212,8 @@ GameObject:
   m_Component:
   - component: {fileID: 401795971136366585}
   - component: {fileID: 710652072813558022}
-  m_Layer: 2
+  - component: {fileID: 6949187661256345821}
+  m_Layer: 8
   m_Name: HitBox
   m_TagString: Foe
   m_Icon: {fileID: 0}
@@ -245,3 +250,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.12
+--- !u!114 &6949187661256345821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6893994978750119949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd82c7a84c3dff40a92bcecad3831c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avoidanceDetectionRange: 1.25
+  avoidanceForce: 1
+  minDotResult: 0.9

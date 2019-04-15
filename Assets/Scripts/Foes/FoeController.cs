@@ -20,6 +20,8 @@ public class FoeController : MonoBehaviour
     [SerializeField] private CircleCollider2D hitBox;
 
     [SerializeField] public GameObject wanderingPointPrefab;
+
+    [SerializeField] private LayerMask rayLayerMask;
     
     [Header("Morals parameters")]
     [SerializeField] private int maxMorals;
@@ -86,6 +88,9 @@ public class FoeController : MonoBehaviour
     private float hittedAt;
     public bool isActive = false;
     public int morals;
+    public Vector3 avoidanceVector;
+
+    private AvoidanceBehavior avoidanceBehavior;
     
     private void Awake()
     {
@@ -94,6 +99,7 @@ public class FoeController : MonoBehaviour
         playerTransform = gameManager.GetPlayerTranform();
         patrolPathGenerator = FindObjectOfType<PatrolPathGenerator>();
         foesManager = FindObjectOfType<FoesManager>();
+        avoidanceBehavior = GetComponentInChildren<AvoidanceBehavior>();
     }
 
     // Start is called before the first frame update
@@ -154,14 +160,17 @@ public class FoeController : MonoBehaviour
                     break;
                 case State.PATROL:
                     UpdateState();
+                    avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
                     moveToNextPatrolPoint();
                     break;
                 case State.WANDERING:
                     UpdateState();
+                    avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
                     Wandering();
                     break;
                 case State.POSITIONING:
                     GoAtAttackRange();
+                    avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
                     break;
                 case State.FLEE:
                     GoAtReinforcementRange();
@@ -183,8 +192,10 @@ public class FoeController : MonoBehaviour
         morals = maxMorals;
 
         // Check if inside a building
-        if (gameManager.isInOpenBuilding(transform.position))
+        if (patrolPathGenerator.isInOpenBuilding(transform.position))
+        {
             return;
+        }
         
         // Try to get a patrol path
         patrolPath = patrolPathGenerator.GeneratePatrolPath(transform.position);
@@ -205,11 +216,13 @@ public class FoeController : MonoBehaviour
         // Check if at detection range
         if ((playerTransform.position - transform.position).magnitude <= detectionRange)
         {
-            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
-        
+            RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
+
             // Check if the foe can see the player
             if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
             {
+                Debug.Log("Want to attack");
+                rigid.velocity = Vector2.zero;
                 foesManager.RegisterToFightingList(this);
                 target = playerTransform;
                 state = State.POSITIONING;
@@ -252,7 +265,7 @@ public class FoeController : MonoBehaviour
             return;
         }
         
-        RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position);
+        RaycastHit2D ray = Physics2D.Raycast(transform.position, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
         
         // Check if the foe has a direct line of view to the player
         if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
@@ -284,10 +297,24 @@ public class FoeController : MonoBehaviour
         // Check if the target is at range
         if ((target.position - transform.position).magnitude <= reinforcementRange)
         {
-            // Return to the fight
-            FoeController foe = target.GetComponent<FoeController>();
-            foe.state = State.POSITIONING;
-            foe.target = playerTransform;
+            // Get all the foes at range   
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, reinforcementRange);
+
+            FoeController foe;
+            
+            foreach (Collider2D col in colliders)
+            {
+                // Check if it is a foe
+                if (col.tag == "Foe" || col.tag == "FoeAttack")
+                {
+                    foe = col.GetComponentInParent<FoeController>();
+                    foe.state = State.POSITIONING;
+                    foe.target = playerTransform;
+                    foesManager.RegisterToFightingList(foe);
+                }
+            }
+
+            morals = maxMorals;
             target = playerTransform;
             state = State.POSITIONING;
             rigid.velocity = Vector2.zero;
@@ -295,7 +322,7 @@ public class FoeController : MonoBehaviour
             return;
         }
         
-        RaycastHit2D ray = Physics2D.Raycast(transform.position, target.position - transform.position);
+        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position);
         
         // Check if the foe has a direct line of view to the target
         if (ray.collider.tag == "Foe")
@@ -310,8 +337,6 @@ public class FoeController : MonoBehaviour
         }
         else
         {
-            path = null;
-            
             // Get path to the player
             pathFindingManager.RegisterToQueue(this);
             
@@ -358,8 +383,9 @@ public class FoeController : MonoBehaviour
     {
         // Set speed to rush strait to the target
         Vector3 moveVector = target.position - transform.position;
+
+        rigid.velocity = (moveVector + avoidanceVector).normalized * moveSpeed * Time.deltaTime;
         
-        rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
         renderer.flipX = rigid.velocity.x < 0;
         
         animator.SetBool("isMoving", true);
@@ -369,15 +395,15 @@ public class FoeController : MonoBehaviour
     {
         Vector3 moveVector = patrolPath[nextPatrolPointID] - transform.position;
         
-        rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
+        rigid.velocity = (moveVector + avoidanceVector).normalized * moveSpeed * Time.deltaTime;
         
         renderer.flipX = rigid.velocity.x < 0;
         
         // Check if the node has been reach
-        if (patrolPath[nextPatrolPointID].x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
-            patrolPath[nextPatrolPointID].x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
-            patrolPath[nextPatrolPointID].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
-            patrolPath[nextPatrolPointID].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))  
+        if (patrolPath[nextPatrolPointID].x > transform.position.x - (gameManager.parameters.cellSize.x / 2) &&
+            patrolPath[nextPatrolPointID].x < transform.position.x + (gameManager.parameters.cellSize.x / 2) &&
+            patrolPath[nextPatrolPointID].y > transform.position.y - (gameManager.parameters.cellSize.y / 2) &&
+            patrolPath[nextPatrolPointID].y < transform.position.y + (gameManager.parameters.cellSize.y / 2))  
         {
             // Check if it was the last node
             if (nextPatrolPointID == patrolPath.Count - 1)
@@ -396,16 +422,19 @@ public class FoeController : MonoBehaviour
         
         Vector3 moveVector = path[path.Count - 1] - transform.position;
         
-        rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
+        rigid.velocity = (moveVector + avoidanceVector).normalized * moveSpeed * Time.deltaTime;
         
         renderer.flipX = rigid.velocity.x < 0;
         
         // Check if the node has been reach
-        if(path[path.Count - 1].x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
-           path[path.Count - 1].x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
-           path[path.Count - 1].y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
-           path[path.Count - 1].y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+        if (path[path.Count - 1].x > transform.position.x - (gameManager.parameters.cellSize.x) &&
+            path[path.Count - 1].x < transform.position.x + (gameManager.parameters.cellSize.x) &&
+            path[path.Count - 1].y > transform.position.y - (gameManager.parameters.cellSize.y) &&
+            path[path.Count - 1].y < transform.position.y + (gameManager.parameters.cellSize.y))
+        {
+            //rigid.velocity = Vector2.zero;
             path.RemoveAt(path.Count - 1);
+        }
     }
 
     private void Wandering()
@@ -413,22 +442,16 @@ public class FoeController : MonoBehaviour
         if (path == null || path.Count <= 0)
         {
             // Check if the wondering point has been reached
-            if(wanderingPoint.transform.position.x > transform.position.x - (gameManager.parameters.cellSize.x / 4) &&
-               wanderingPoint.transform.position.x < transform.position.x + (gameManager.parameters.cellSize.x / 4) &&
-               wanderingPoint.transform.position.y > transform.position.y - (gameManager.parameters.cellSize.y / 4) &&
-               wanderingPoint.transform.position.y < transform.position.y + (gameManager.parameters.cellSize.y / 4))
+            if(wanderingPoint.transform.position.x > transform.position.x - (gameManager.parameters.cellSize.x) &&
+               wanderingPoint.transform.position.x < transform.position.x + (gameManager.parameters.cellSize.x) &&
+               wanderingPoint.transform.position.y > transform.position.y - (gameManager.parameters.cellSize.y) &&
+               wanderingPoint.transform.position.y < transform.position.y + (gameManager.parameters.cellSize.y))
                     wanderingPoint.transform.position = patrolPathGenerator.GetRandomWalkableNode();
             
             // Ask for a path
             pathFindingManager.RegisterToQueue(this);
             
-            // Set speed to rush strait to the target
-            Vector3 moveVector = wanderingPoint.transform.position - transform.position;
-        
-            rigid.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
-            renderer.flipX = rigid.velocity.x < 0;
-        
-            animator.SetBool("isMoving", true);
+            moveToTarget();
         }
         else
         {
