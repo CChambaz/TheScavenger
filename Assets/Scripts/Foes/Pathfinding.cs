@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStarPathfinding
+public class Pathfinding
 {
     private MapParameters parameters;
 
-    public AStarPathfinding(MapParameters parameters)
+    public Pathfinding(MapParameters parameters)
     {
         this.parameters = parameters;
     }
     
-    public List<Vector3> GetPathTo(Grid grid, Vector2 startPosition, Vector2 targetPosition)
+    public List<Vector3> GetAStarPathTo(Grid grid, Vector2 startPosition, Vector2 targetPosition, bool limitSearch = false)
     {
         // Check if the target is outside of the map
         if (targetPosition.x < 0 || targetPosition.x >= parameters.mapSizeX || targetPosition.y < 0 || targetPosition.y >= parameters.mapSizeY)
@@ -37,9 +37,11 @@ public class AStarPathfinding
         // Add the starting node to the open list
         openList.Add(startingNode);
 
-        GridNode currentNode;
+        GridNode currentNode = startingNode;
+
+        int iterator = 0;
         
-        while (openList.Count > 0)
+        while (openList.Count > 0 || iterator < parameters.pathfindingMaxCheckedNode)
         {
             // Get the first node of the list
             currentNode = openList[0];
@@ -78,9 +80,10 @@ public class AStarPathfinding
                         openList.Add(node);
                 }
             }
-        }
 
-        currentNode = targetNode;
+            if (limitSearch)
+                iterator++;
+        }
         
         // Create the point forming the path to reach the target
         List<Vector3> path = new List<Vector3>();

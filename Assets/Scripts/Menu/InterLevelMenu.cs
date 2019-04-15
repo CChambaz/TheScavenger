@@ -123,6 +123,9 @@ public class InterLevelMenu : MonoBehaviour
         // Check if the requirement has aleady been applied
         if (hasAppliedRequirement)
             return;
+
+        if (playerInventory == null)
+            playerInventory = FindObjectOfType<PlayerInventory>();
         
         // Check if the player has not enough food
         if (playerInventory.food < foodRequirement)
