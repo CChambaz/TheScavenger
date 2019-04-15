@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float dashDuration;
     [SerializeField] float dashCoolDown;
     [SerializeField] private GameObject SmokeDash;
+    [SerializeField] private Vector3 offSetSmokeDash;
 
     [Header("Attack attributs")] [SerializeField]
     float attackRange;
@@ -34,13 +35,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] BoxCollider2D attackUpCollider;
     [SerializeField] BoxCollider2D attackDownCollider;
 
-    [SerializeField] private float invicibilityTimeAfterHit; // TODO: Rename to link with hitted state
-    [SerializeField] private float recoveryTime;
-
+    [Header("Slash attributs")]
+    [SerializeField] public Vector3 offsetPostion;
     [SerializeField] public GameObject slashRight;
     [SerializeField] public GameObject slashLeft;
     [SerializeField] public GameObject slashUp;
     [SerializeField] public GameObject slashDown;
+    [SerializeField] private float timeToDestroySlash;
+
+    [Header("Recovery attributs")]
+    [SerializeField] private float timeToRecovery;
+    private float recoveryAt;
+    [SerializeField] private float timeToBlink;
+    private float counterTime;
+    private bool isRecovering = false;
+
 
     float movementUp;
     float movementDown;
@@ -104,16 +113,27 @@ public class PlayerController : MonoBehaviour
         if (!gameManager.gameRunning || state == PlayerState.DEAD)
             return;
 
+        //Check if the player
         if (state == PlayerState.HITTED)
         {
+            return;
+        }
 
-            if (Time.time > lastHitAt + invicibilityTimeAfterHit)
+        if (isRecovering)
+        {
+            counterTime += Time.deltaTime;
+            if (counterTime > timeToBlink)
             {
-                animator.SetBool("isHurting", false);
-                state = PlayerState.IDLE;
+                counterTime = 0.0f;
+                GetComponent<SpriteRenderer>().enabled = !GetComponent<SpriteRenderer>().enabled;
             }
 
-            return;
+            if(Time.time >= recoveryAt)
+            {
+                isRecovering = false;
+                counterTime = 0.0f;
+                GetComponent<SpriteRenderer>().enabled = true;
+            }
         }
 
         // Check if the user launched an attack
@@ -374,7 +394,7 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (state != PlayerState.HITTED && other.tag == "FoeAttack")
+        if (!isRecovering && state != PlayerState.HITTED && other.tag == "FoeAttack")
         {
             lastHitAt = Time.time;
             state = PlayerState.HITTED;
@@ -385,6 +405,9 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("isWalking", false);
             animator.SetBool("isWalkingUp", false);
             animator.SetBool("isWalkingDown", false);
+            animator.SetBool("isDashing", false);
+            animator.SetBool("isDashingDown", false);
+            animator.SetBool("isDashingUp", false);
             animator.SetBool("isHurting", true);
 
             if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
@@ -398,6 +421,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Recoil after attack
     void Recoil()
     {
         rigid.velocity = Vector2.zero;
@@ -406,60 +430,69 @@ public class PlayerController : MonoBehaviour
         rigid.velocity = recoilVector;
     }
 
+    //Function for instantiate a slash object for attack
     void Slash()
     {
         Vector3 positionSpawn = Vector3.zero;
         Vector3 Dir = Vector3.zero;
         GameObject slash;
-
+       
+        //Check dîrection for instantiate
         switch (actualOrientation)
         {
             case Orientation.UP:
                 //pos and dir
                 Dir = Vector3.up/2;
-                positionSpawn = new Vector3(0.0f, +0.2f, 0.0f);
+                positionSpawn = new Vector3(0.0f, +offsetPostion.y, 0.0f);
                 slash = Instantiate(slashUp, (transform.position + positionSpawn), Quaternion.identity);
                 slash.GetComponent<Rigidbody2D>().velocity = Dir;
-                Destroy(slash, 0.35f);
+                Destroy(slash, timeToDestroySlash);
                 break;
 
             case Orientation.DOWN:
                 Dir = Vector3.down/2;
-                positionSpawn = new Vector3(0.0f, -0.2f, 0.0f);
+                positionSpawn = new Vector3(0.0f, -offsetPostion.y, 0.0f);
                 slash = Instantiate(slashDown, (transform.position + positionSpawn), Quaternion.identity);
                 slash.GetComponent<Rigidbody2D>().velocity = Dir;
-                Destroy(slash, 0.35f);
+                Destroy(slash, timeToDestroySlash);
                 break;
 
             case Orientation.HORIZONTAL:
                 if (right)
                 {
                     Dir = Vector3.right/2;
-                    positionSpawn = new Vector3(0.2f, 0.0f ,0.0f );
+                    positionSpawn = new Vector3(offsetPostion.x, 0.0f ,0.0f );
                     slash = Instantiate(slashRight, (transform.position + positionSpawn), Quaternion.identity);
                     slash.GetComponent<Rigidbody2D>().velocity = Dir;
 
 
-                    Destroy(slash, 0.35f);
+                    Destroy(slash, timeToDestroySlash);
                 }
                 else
                 {
                     Dir = Vector3.left/2;
-                    positionSpawn = new Vector3(-0.2f, 0.0f, 0.0f);
+                    positionSpawn = new Vector3(-offsetPostion.x, 0.0f, 0.0f);
                     slash = Instantiate(slashLeft, (transform.position + positionSpawn), Quaternion.identity);
                     slash.GetComponent<Rigidbody2D>().velocity = Dir;
-                    Destroy(slash, 0.35f);
+                    Destroy(slash, timeToDestroySlash);
                 }
-
                 break;
         }
 
 
     }
 
-    // Instantiate prefab smoke
+    //Instantiate prefab smoke
     public void InstanceSmoke()
     {
-        Destroy(Instantiate(SmokeDash, transform.position + new Vector3(0, -0.1f), Quaternion.identity), 0.5f);
+        Destroy(Instantiate(SmokeDash, transform.position + offSetSmokeDash, Quaternion.identity), 0.5f);
+    }
+
+    public void EndHurt()
+    {
+        animator.SetBool("isHurting", false);
+        state = PlayerState.IDLE;
+        isRecovering = true;
+        recoveryAt = Time.time + timeToRecovery;
     }
 }
