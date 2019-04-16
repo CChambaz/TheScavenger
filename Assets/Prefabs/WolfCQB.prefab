@@ -172,9 +172,12 @@ MonoBehaviour:
   hitBox: {fileID: 710652072813558022}
   wanderingPointPrefab: {fileID: 2207825185361833172, guid: 1f3f76be8dbaed94bbdc873cddc321f3,
     type: 3}
-  rayLayerMask:
+  detectionLayerMask:
     serializedVersion: 2
     m_Bits: 1
+  reinforcementLayerMask:
+    serializedVersion: 2
+    m_Bits: 257
   maxMorals: 100
   individualMoralsDamageFromHit: 40
   surroundingMoralsDamageFromHit: 20

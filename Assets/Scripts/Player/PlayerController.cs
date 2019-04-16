@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
     float movementDown;
     float movementRight;
     float movementLeft;
-    public bool right;
+    public bool right = false;
 
     private SoundPlayerManager sound;
 
@@ -458,21 +458,19 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case Orientation.HORIZONTAL:
-                if (right)
-                {
-                    Dir = Vector3.right/2;
-                    positionSpawn = new Vector3(offsetPostion.x, 0.0f ,0.0f );
-                    slash = Instantiate(slashRight, (transform.position + positionSpawn), Quaternion.identity);
-                    slash.GetComponent<Rigidbody2D>().velocity = Dir;
-
-
-                    Destroy(slash, timeToDestroySlash);
-                }
-                else
+                if (renderer.flipX)
                 {
                     Dir = Vector3.left/2;
                     positionSpawn = new Vector3(-offsetPostion.x, 0.0f, 0.0f);
                     slash = Instantiate(slashLeft, (transform.position + positionSpawn), Quaternion.identity);
+                    slash.GetComponent<Rigidbody2D>().velocity = Dir;
+                    Destroy(slash, timeToDestroySlash);
+                }
+                else
+                {
+                    Dir = Vector3.right/2;
+                    positionSpawn = new Vector3(offsetPostion.x, 0.0f ,0.0f );
+                    slash = Instantiate(slashRight, (transform.position + positionSpawn), Quaternion.identity);
                     slash.GetComponent<Rigidbody2D>().velocity = Dir;
                     Destroy(slash, timeToDestroySlash);
                 }

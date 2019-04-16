@@ -21,7 +21,8 @@ public class FoeController : MonoBehaviour
 
     [SerializeField] public GameObject wanderingPointPrefab;
 
-    [SerializeField] private LayerMask rayLayerMask;
+    [SerializeField] private LayerMask detectionLayerMask;
+    [SerializeField] private LayerMask reinforcementLayerMask;
     
     [Header("Morals parameters")]
     [SerializeField] private int maxMorals;
@@ -183,7 +184,6 @@ public class FoeController : MonoBehaviour
                     break;
                 case State.POSITIONING:
                     GoAtAttackRange();
-                    //avoidanceVector = avoidanceBehavior.GetAvoidanceVector();
                     break;
                 case State.FLEE:
                     GoAtReinforcementRange();
@@ -242,8 +242,9 @@ public class FoeController : MonoBehaviour
         // Check if at detection range
         if ((playerTransform.position - transform.position).magnitude <= detectionRange)
         {
-            RaycastHit2D ray = Physics2D.Raycast(transform.position + (playerTransform.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
-
+            
+            RaycastHit2D ray = Physics2D.Raycast(transform.position + (playerTransform.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, detectionLayerMask);
+            
             // Check if the foe can see the player
             if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
             {
@@ -290,7 +291,7 @@ public class FoeController : MonoBehaviour
             return;
         }
         
-        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, rayLayerMask);
+        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, playerTransform.position - transform.position, Mathf.Infinity, detectionLayerMask);
         
         // Check if the foe has a direct line of view to the player
         if (ray.collider.tag == "PlayerFeet" || ray.collider.tag == "Player" || ray.collider.tag == "PlayerAttack")
@@ -333,9 +334,14 @@ public class FoeController : MonoBehaviour
                 if (col.tag == "Foe" || col.tag == "FoeAttack")
                 {
                     foe = col.GetComponentInParent<FoeController>();
-                    foe.state = State.POSITIONING;
-                    foe.target = playerTransform;
-                    foesManager.RegisterToFightingList(foe);
+                    
+                    // Check if dead
+                    if (foe.state != State.DEAD)
+                    {
+                        foe.state = State.POSITIONING;
+                        foe.target = playerTransform;
+                        foesManager.RegisterToFightingList(foe);
+                    }
                 }
             }
 
@@ -347,10 +353,11 @@ public class FoeController : MonoBehaviour
             return;
         }
         
-        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position);
+        RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position, Mathf.Infinity, reinforcementLayerMask);
+        Debug.DrawRay(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position);
         
         // Check if the foe has a direct line of view to the target
-        if (ray.collider.tag == "Foe")
+        if (ray.collider.tag == "Foe" && ray.transform == target.transform)
         {
             path = null;
             moveToTarget();
@@ -515,7 +522,6 @@ public class FoeController : MonoBehaviour
                 isInvicible = true;
                 LastHit = Time.time;
                 animator.SetTrigger("isHurting");
-                life -= playerTransform.GetComponent<PlayerController>().attackDamage;
                 life -= gameManager.playerDamage;
 
                 if (life <= 0)
