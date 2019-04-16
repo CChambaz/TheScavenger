@@ -43,6 +43,12 @@ public class FoeController : MonoBehaviour
     [Range(0f, 1f)] [SerializeField] private float foodMediumSpawnChance;
     [Range(0f, 1f)] [SerializeField] private float foodBigSpawnChance;
 
+    [SerializeField] private GameObject particleSlash;
+
+    private bool isInvicible = false;
+    [SerializeField] private float timeToRecovery = 0.4f;
+    private float LastHit;
+    
     private enum Type
     {
         CQB,
@@ -125,6 +131,14 @@ public class FoeController : MonoBehaviour
     {
         if (gameManager.gameRunning && isActive)
         {
+            if (isInvicible)
+            {
+                if (Time.time > LastHit + timeToRecovery) ;
+                {
+                    isInvicible = false;
+                }
+            }
+
             switch (state)
             {
                 case State.IDLE:
@@ -493,10 +507,15 @@ public class FoeController : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (state != State.DEAD)
+        if (state != State.DEAD && !isInvicible)
         {
             if (other.tag == "PlayerAttack")
             {
+                Destroy(Instantiate(particleSlash, transform.position, Quaternion.identity), 0.5f);
+                isInvicible = true;
+                LastHit = Time.time;
+                animator.SetTrigger("isHurting");
+                life -= playerTransform.GetComponent<PlayerController>().attackDamage;
                 life -= gameManager.playerDamage;
 
                 if (life <= 0)

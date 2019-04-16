@@ -484,10 +484,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 801dace2cf0648a45a29429223714579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 50
+  moveSpeed: 100
+  moveRecoil: 20
   dashSpeed: 250
-  dashDuration: 0.2
-  dashCoolDown: 0.5
+  dashDuration: 0.25
+  dashCoolDown: 0.1
+  SmokeDash: {fileID: 8813164170515445471, guid: 3904e012752d02a44b72eef6c3cf17c3,
+    type: 3}
+  offSetSmokeDash: {x: 0, y: 0, z: 0}
   attackRange: 2
   attackDamage: 20
   attackCoolDown: 0.2
@@ -495,7 +499,19 @@ MonoBehaviour:
   attackLeftCollider: {fileID: 1258205762454945285}
   attackUpCollider: {fileID: 1258205763955283729}
   attackDownCollider: {fileID: 1258205762772652014}
-  invicibilityTimeAfterHit: 1.5
+  offsetPostion: {x: 0.2, y: 0.2, z: 0}
+  slashRight: {fileID: 8825588449397403204, guid: c197921ef5a56094bab2c094c0684963,
+    type: 3}
+  slashLeft: {fileID: 4583614484430953532, guid: bad9042d38362234abae435debf82749,
+    type: 3}
+  slashUp: {fileID: 7503912907003336835, guid: 513ae2b3adb466f4e8309123091ba267, type: 3}
+  slashDown: {fileID: 6339479784309217201, guid: 8a2275e187236a04480cee6074571b24,
+    type: 3}
+  timeToDestroySlash: 0.35
+  timeToRecovery: 1.5
+  timeToBlink: 0.3
+  right: 0
+  state: 0
 --- !u!114 &1258205763557482110
 MonoBehaviour:
   m_ObjectHideFlags: 0
