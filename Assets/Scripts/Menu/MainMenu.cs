@@ -12,6 +12,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] Text startText;
     [SerializeField] private Button startButton;
     [SerializeField] private InputField seedText;
+    [SerializeField] public CanvasGroup creditsCanvas;
     
     private GameManager gameManager;
     
@@ -43,7 +44,11 @@ public class MainMenu : MonoBehaviour
         if (gameManager.gameState == GameManager.GameState.DEATH)
         {
             deathText.gameObject.SetActive(true);
-            deathText.text = "You bravely survived " + gameManager.levelNumber + " days.";
+            
+            if(gameManager.levelNumber == 1)
+                deathText.text = "You've bravely survived " + gameManager.levelNumber + " day.";
+            else
+                deathText.text = "You've bravely survived " + gameManager.levelNumber + " days.";
             
             if (gameManager.generationInProgress)
             {
@@ -69,6 +74,14 @@ public class MainMenu : MonoBehaviour
     public void UpdateSeed()
     {
         gameManager.seed = Convert.ToUInt32(seedText.text);
+    }
+
+    public void ShowCredit()
+    {
+        if (creditsCanvas.alpha == 0)
+            creditsCanvas.alpha = 1;
+        else
+            creditsCanvas.alpha = 0;
     }
     
     public void ExitGame()

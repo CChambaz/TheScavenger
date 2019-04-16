@@ -162,12 +162,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d67965c2a970b47a59e99438239e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLife: 50
+  maxLife: 75
   detectionRange: 5
-  moveSpeed: 50
+  moveSpeed: 75
   attackSpeed: 200
   attackDuration: 0.25
-  attackDamage: 25
+  attackDamage: 10
   hittedDuration: 1
   hitBox: {fileID: 710652072813558022}
   wanderingPointPrefab: {fileID: 2207825185361833172, guid: 1f3f76be8dbaed94bbdc873cddc321f3,
@@ -178,11 +178,11 @@ MonoBehaviour:
   reinforcementLayerMask:
     serializedVersion: 2
     m_Bits: 257
-  maxMorals: 100
+  maxMorals: 175
   individualMoralsDamageFromHit: 40
-  surroundingMoralsDamageFromHit: 20
-  surroundingmoralsDamageFromDeath: 50
-  reinforcementRange: 2
+  surroundingMoralsDamageFromHit: 10
+  surroundingmoralsDamageFromDeath: 20
+  reinforcementRange: 10
   foodSmallPrefab: {fileID: 7564787723500514629, guid: a66ad5b0baf186443b08763d36271a58,
     type: 3}
   foodMediumPrefab: {fileID: 7112604956250697327, guid: c0e9cfd0ce9a59248bb0ff081d568f92,
@@ -269,5 +269,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   avoidanceDetectionRange: 1.25
-  avoidanceForce: 1
   minDotResult: 0.9

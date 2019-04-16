@@ -124,14 +124,14 @@ public class PlayerController : MonoBehaviour
             if (counterTime > timeToBlink)
             {
                 counterTime = 0.0f;
-                GetComponent<SpriteRenderer>().enabled = !GetComponent<SpriteRenderer>().enabled;
+                GetComponent<SpriteRenderer>().enabled = !renderer.enabled;
             }
 
             if(Time.time >= recoveryAt)
             {
                 isRecovering = false;
                 counterTime = 0.0f;
-                GetComponent<SpriteRenderer>().enabled = true;
+                renderer.enabled = true;
             }
         }
 

@@ -48,7 +48,7 @@ public class FoesManager : MonoBehaviour
             foreach (FoeController foe in fightingFoes)
             {
                 // Check if the foe has to flee
-                if (foe.state != FoeController.State.FLEE && foe.morals <= 0)
+                if (foe.state != FoeController.State.FLEE && foe.morals <= 0 && foe.state != FoeController.State.DEAD)
                 {
                     // Set the nearest foe that is not fighting as a target
                     foe.path = null;
@@ -130,7 +130,7 @@ public class FoesManager : MonoBehaviour
         
         foreach (FoeController foe in activeFoes)
         {
-            // Check if the foe is already fighting
+            // Check if the foe is already fighting or dead
             if (fightingFoes.Contains(foe) || foe.state == FoeController.State.DEAD)
                 continue;
 

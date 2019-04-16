@@ -6,7 +6,6 @@ using UnityEngine;
 public class AvoidanceBehavior : MonoBehaviour
 {
     [SerializeField] private float avoidanceDetectionRange;
-    [SerializeField] [Range(0f, 1f)] private float avoidanceForce;
     [SerializeField] [Range(-1f, 1f)] private float minDotResult;
     
     private Rigidbody2D concernedRigid;

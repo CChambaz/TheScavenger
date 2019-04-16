@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ScrapBig
   m_EditorClassIdentifier: 
   type: 1
-  amount: 20
+  amount: 5

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: FoodBig
   m_EditorClassIdentifier: 
   type: 0
-  amount: 20
+  amount: 5

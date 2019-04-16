@@ -27,18 +27,18 @@ MonoBehaviour:
   obMinSizeY: 6
   obMaxSizeY: 8
   cbSpawnChance: 0.5
-  obSpawnChance: 0.8
+  obSpawnChance: 0.7
   forceOBSpawnAfter: 6
   spawnAreaSize: {x: 15, y: 15}
-  obFoesSpawnChance: 0.5
-  freeAreaFoesSpawnChance: 0.005
+  obFoesSpawnChance: 0.7
+  freeAreaFoesSpawnChance: 0.009
   minStreetAreaToSpawnFoes: 10
   minStreetFoes: 0
-  maxStreetFoes: 2
+  maxStreetFoes: 3
   minOpenBuildingAreaToSpawnFoes: 10
   minOpenBuildingFoes: 0
   maxOpenBuildingFoes: 3
-  itemSpawnChance: 0.8
+  itemSpawnChance: 0.9
   minOpenBuildingItem: 1
   maxOpenBuildingItem: 3
   forceSpawnScrapWhenHasNotSpawnSince: 3

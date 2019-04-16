@@ -27,7 +27,7 @@ public class PathFindingManager : MonoBehaviour
             currentPathAskBy = pathAskedBy.Dequeue();
 
             // Check if the requested path does not need the full path
-            if (currentPathAskBy.state == FoeController.State.WANDERING)
+            if (currentPathAskBy.state == FoeController.State.WANDERING || currentPathAskBy.state == FoeController.State.FLEE)
                 currentPathAskBy.path = pathFinder.GetAStarPathTo(gameManager.grid, currentPathAskBy.transform.position,
                     currentPathAskBy.target.position, true);
             else

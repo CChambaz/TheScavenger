@@ -111,6 +111,9 @@ public class FoeController : MonoBehaviour
         collider = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
         renderer = GetComponent<SpriteRenderer>();
+        
+        // Spawn a wandering point
+        wanderingPoint = Instantiate(wanderingPointPrefab, Vector3.zero, Quaternion.identity);
     }
 
     // Start is called before the first frame update
@@ -120,9 +123,6 @@ public class FoeController : MonoBehaviour
         attackRange = attackSpeed * attackDuration * Time.fixedDeltaTime;
 
         life = maxLife;
-        
-        // Spawn a wandering point
-        wanderingPoint = Instantiate(wanderingPointPrefab, Vector3.zero, Quaternion.identity);
         
         SetLootAmount();
     }
@@ -205,6 +205,7 @@ public class FoeController : MonoBehaviour
         animator.SetBool("isAttacking", false);
         life = maxLife;
         morals = maxMorals;
+        patrolPath = null;
 
         if (hostileReset)
         {
@@ -233,7 +234,9 @@ public class FoeController : MonoBehaviour
                 pathFindingManager.RegisterToQueue(this);
             }
             else
+            {
                 wanderingPoint.transform.position = Vector3.zero;
+            }
         }
     }
     
@@ -354,7 +357,6 @@ public class FoeController : MonoBehaviour
         }
         
         RaycastHit2D ray = Physics2D.Raycast(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position, Mathf.Infinity, reinforcementLayerMask);
-        Debug.DrawRay(transform.position + (target.position - transform.position).normalized * hitBox.radius, target.position - transform.position);
         
         // Check if the foe has a direct line of view to the target
         if (ray.collider.tag == "Foe" && ray.transform == target.transform)
