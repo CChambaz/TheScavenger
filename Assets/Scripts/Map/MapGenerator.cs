@@ -6,21 +6,14 @@ using Unity.Mathematics;
 
 public class MapGenerator
 {
-    public struct MapArea
-    {
-        public Vector2Int startIndex;
-        public Vector2Int endIndex;
-    }
-    
     public Cell[,] cells;
-
-    private List<MapArea> mapAreaList;
+    
     private MapParameters parameters;
     
     public MapGenerationJob mapGenerationJob;
     
     // Start is called before the first frame update
-    public MapGenerator(MapParameters parameters, MapDrawer drawer, uint seed)
+    public MapGenerator(MapParameters parameters)
     {
         this.parameters = parameters;
         

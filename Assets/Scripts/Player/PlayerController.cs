@@ -55,7 +55,6 @@ public class PlayerController : MonoBehaviour
     float movementDown;
     float movementRight;
     float movementLeft;
-    public bool right = false;
 
     private SoundPlayerManager sound;
 
@@ -213,7 +212,6 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.D) || Input.GetAxisRaw("Horizontal") > 0)
         {
             movementRight = 1;
-            right = true;
         }
         else
             movementRight = 0;
@@ -221,7 +219,6 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.A) || Input.GetAxisRaw("Horizontal") < 0)
         {
             movementLeft = 1;
-            right = false;
         }
         else
             movementLeft = 0;

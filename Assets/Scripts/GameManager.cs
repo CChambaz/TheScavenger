@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour
         mapDrawer = FindObjectOfType<MapDrawer>();
         foesManager = FindObjectOfType<FoesManager>();
         
-        mapGenerator = new MapGenerator(parameters, mapDrawer, seed);
+        mapGenerator = new MapGenerator(parameters);
         grid = new Grid(parameters, mapGenerator);
         
         // Instantiate base objects
