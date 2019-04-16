@@ -126,6 +126,9 @@ public class InterLevelMenu : MonoBehaviour
 
         if (playerInventory == null)
             playerInventory = FindObjectOfType<PlayerInventory>();
+
+        if (playerLife == null)
+            playerLife = FindObjectOfType<PlayerLife>();
         
         // Check if the player has not enough food
         if (playerInventory.food < foodRequirement)

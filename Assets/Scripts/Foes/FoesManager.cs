@@ -13,6 +13,7 @@ public class FoesManager : MonoBehaviour
     [SerializeField] private float nightSpawnCoolDown;
     [SerializeField] private Transform[] nightSpawner;
     [SerializeField] private int maxNightSpawnInARow;
+    [SerializeField] private int maxFightingFoes;
     
     private List<FoeController> activeFoes = new List<FoeController>();
     private List<FoeController> inactiveFoes = new List<FoeController>();
@@ -50,6 +51,7 @@ public class FoesManager : MonoBehaviour
                 if (foe.state != FoeController.State.FLEE && foe.morals <= 0)
                 {
                     // Set the nearest foe that is not fighting as a target
+                    foe.path = null;
                     foe.target = GetNearestNonFightingFoe(foe.transform.position);
                     foe.state = FoeController.State.FLEE;
                 }
@@ -66,7 +68,7 @@ public class FoesManager : MonoBehaviour
         
         while (true)
         {
-            if (gameManager.gameState == GameManager.GameState.INGAMENIGHT)
+            if (gameManager.gameState == GameManager.GameState.INGAMENIGHT && fightingFoes.Count < maxFightingFoes)
             {
                 spawnNodeID = gameManager.grid.GetNearestWalkableNode(nightSpawner[nextSpawnerToUseID].position);
 

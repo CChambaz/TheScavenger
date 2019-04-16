@@ -268,7 +268,30 @@ public class GameManager : MonoBehaviour
     {
         if (false)
         {
-            for (int y = 0; y < 10; y++)
+            foreach (Cell cell in mapGenerator.cells)
+            {
+                switch (cell.state)
+                {
+                    case Cell.CellState.OPENDBUILDING:
+                        Gizmos.color = Color.green;
+                        Gizmos.DrawCube(new Vector3(cell.positionX, cell.positionY), parameters.cellSize);
+                        break;
+                    case Cell.CellState.OPENBUILDINGGATE:
+                        Gizmos.color = Color.magenta;
+                        Gizmos.DrawCube(new Vector3(cell.positionX, cell.positionY), parameters.cellSize);
+                        break;
+                    case Cell.CellState.CLOSEDBUILDING:
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawCube(new Vector3(cell.positionX, cell.positionY), parameters.cellSize);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        if (false)
+        {
+            /*for (int y = 0; y < 10; y++)
             {
                 for (int x = 0; x < 10; x++)
                 {
@@ -309,9 +332,9 @@ public class GameManager : MonoBehaviour
                     Gizmos.DrawCube(new Vector3(grid.nodes[x,y].gridPositionX, grid.nodes[x,y].gridPositionY), new Vector3(0.1f, 0.1f));
                     Gizmos.DrawCube(new Vector3(mapGenerator.cells[x,y].positionX, mapGenerator.cells[x,y].positionY), new Vector3(0.1f, 0.1f));
                 }
-            }
+            }*/
             
-            /*foreach (var node in grid.nodes)
+            foreach (var node in grid.nodes)
             {
                 if (node.walkable)
                 {
