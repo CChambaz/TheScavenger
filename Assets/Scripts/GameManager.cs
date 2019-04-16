@@ -245,11 +245,13 @@ public class GameManager : MonoBehaviour
         if (fadeGoal == 0)
         {
             canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
             Time.timeScale = 1;
         }
         else
         {
             canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
             Time.timeScale = 0;
         }
     }

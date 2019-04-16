@@ -410,6 +410,7 @@ public class PlayerController : MonoBehaviour
             if (life.ApplyDamage(other.GetComponentInParent<FoeController>().attackDamage))
             {
                 rigid.isKinematic = true;
+                animator.SetBool("isHurting", false);
                 animator.SetBool("isDead", true);
                 rigid.velocity = Vector2.zero;
                 state = PlayerState.DEAD;

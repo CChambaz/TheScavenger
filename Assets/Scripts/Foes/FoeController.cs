@@ -397,7 +397,7 @@ public class FoeController : MonoBehaviour
 
         hitBox.tag = "FoeAttack";
         
-        while (Time.time < attackStartAt + attackDuration)
+        while (Time.time < attackStartAt + attackDuration && state != State.DEAD)
         {
             rigid.velocity = attackVector.normalized * attackSpeed * Time.deltaTime;
             
@@ -495,22 +495,23 @@ public class FoeController : MonoBehaviour
     
     private void Die()
     {
+        state = State.DEAD;
+        rigid.isKinematic = true;
+        collider.isTrigger = true;
+        rigid.velocity = Vector2.zero;
+        hitBox.tag = "Foe";
+        
         if(attackCoroutine != null)
             StopCoroutine(attackCoroutine);
         
         foesManager.ReduceFightingFoesMoral(this, surroundingmoralsDamageFromDeath);
         foesManager.UnregisterToFightingList(this);
         
-        hitBox.tag = "Foe";
         animator.SetBool("isMoving", false);
         animator.SetBool("isPreparingAttack", false);
         animator.SetBool("isAttacking", false);
         animator.SetBool("isDead", true);
 
-        rigid.isKinematic = true;
-        collider.isTrigger = true;
-        rigid.velocity = Vector2.zero;
-        state = State.DEAD;
         SpawnItems();
     }
     

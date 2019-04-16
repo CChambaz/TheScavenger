@@ -542,7 +542,8 @@ AnimationClip:
   - time: 0.35
     functionName: EndHurt
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11500000, guid: 801dace2cf0648a45a29429223714579,
+      type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
